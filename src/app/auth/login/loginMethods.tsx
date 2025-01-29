@@ -2,6 +2,8 @@ import {useState} from "react";
 import {PasskeyMethod} from "@/components/login/PasskeyMethod";
 import {beginPasskeyRegistration, endPasskeyRegistration} from "@/lib/api/auths";
 import {GoogleMethod} from "@/components/login/GoogleMethod";
+import {Microsoft} from "@mui/icons-material";
+import {MicrosoftMethod} from "@/components/login/MicrosoftMethod";
 
 type Props = {
     email: string,
@@ -51,7 +53,8 @@ export const LoginMethods = (props: Props) => {
         <>
             {/*<PasswordMethod email={props.email}/>*/}
             {/*<PasskeyMethod email={props.email}/>*/}
-            <GoogleMethod/>
+            {/*<GoogleMethod/>*/}
+            <MicrosoftMethod/>
         </>
     );
 };

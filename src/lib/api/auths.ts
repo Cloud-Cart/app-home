@@ -60,6 +60,13 @@ const googleSocialLogin = (code: string) => {
     )
 }
 
+const microsoftSocialLogin = ({code}: { code: string; }) => {
+    return publicInstance.post(
+        '/auth/social-login/microsoft/',
+        {code}
+    )
+}
+
 export {
     getEmailAuthMethods,
     authWithPassword,
@@ -68,4 +75,5 @@ export {
     beginPasskeyAuthentication,
     endPasskeyAuthentication,
     googleSocialLogin,
+    microsoftSocialLogin
 }
