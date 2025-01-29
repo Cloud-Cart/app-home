@@ -1,7 +1,9 @@
 import {Button} from "@/components";
+import {LoginComponentProps} from "@/components/login/props";
 
 
-export const MicrosoftMethod = () => {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const MicrosoftMethod = (props: LoginComponentProps) => {
     const CLIENT_ID = process.env.NEXT_PUBLIC_MSAL_CLIENT_ID;
     const TENANT_ID = process.env.NEXT_PUBLIC_MSAL_TENANT_ID
     const REDIRECT_URI = `${process.env.NEXT_PUBLIC_DOMAIN}/auth/callback/microsoft`

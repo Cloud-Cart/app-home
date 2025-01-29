@@ -27,6 +27,15 @@ export const LoginForm = () => {
     const checkEmail = useCallback((email: string) => {
         getEmailAuthMethods(email).then((response) => {
             setEmail(response.data.email);
+            const methods = response.data.socialAccounts
+            if (response.data.isPasskeyAvailable){
+                methods.push('passkey')
+            }
+            if (response.data.isPasswordAvailable){
+                methods.push('password')
+            }
+            setLoginMethods(methods);
+            setDefaultMethod(response.data.defaultMethod);
         })
     }, []);
 

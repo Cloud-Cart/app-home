@@ -4,12 +4,10 @@ import {useCallback, useMemo, useState} from 'react';
 import {Button, InputField} from "@/components";
 import {Visibility, VisibilityOff} from "@mui/icons-material";
 import {authWithPassword} from "@/lib/api/auths";
+import {LoginComponentProps} from "@/components/login/props";
 
-type Props = {
-    email: string;
-};
 
-export const PasswordMethod = (props: Props) => {
+export const PasswordMethod = (props: LoginComponentProps) => {
     const [passwordVal, setPasswordVal] = useState('');
     const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
 
