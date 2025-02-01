@@ -1,7 +1,7 @@
-import {InputField} from "@/components/general/InputField";
-import {Button} from "@/components/general/Button";
+import {ButtonLoader} from "@/components/general/ButtonLoader";
+import {SpinnerLoader} from "@/components/general/SpinnerLoader";
 
 export {
-    InputField,
-    Button
+    ButtonLoader,
+    SpinnerLoader
 }

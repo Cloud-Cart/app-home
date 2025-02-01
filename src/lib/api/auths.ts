@@ -97,24 +97,24 @@ const endPasskeyAuthentication = (data: any) => {
     )
 }
 
-const googleSocialLogin = (code: string) => {
+const googleSocialLogin = (code: string, redirectUri: string) => {
     return publicInstance.post(
         '/auth/social-login/google/',
-        {code}
+        {code, redirectUri}
     )
 }
 
-const microsoftSocialLogin = ({code}: { code: string; }) => {
+const microsoftSocialLogin = (code: string, redirectUri: string) => {
     return publicInstance.post(
         '/auth/social-login/microsoft/',
-        {code}
+        {code, redirectUri}
     )
 }
 
-const facebookSocialLogin = ({code}: { code: string; }) => {
+const facebookSocialLogin = (code: string, redirectUri: string) => {
     return publicInstance.post(
         '/auth/social-login/facebook/',
-        {code}
+        {code, redirectUri}
     )
 }
 

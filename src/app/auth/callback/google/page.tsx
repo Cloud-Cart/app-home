@@ -1,25 +1,17 @@
 'use client'
 
-import {useRouter, useSearchParams} from "next/navigation";
 import {useEffect} from "react";
-import {googleSocialLogin} from "@/lib/api/auths";
 
 export default function GoogleCallback() {
-    const router = useRouter();
-    const searchParams = useSearchParams();
-
     useEffect(() => {
-        const handleGoogleCallback = () => {
-            const code = searchParams.get('code');
-            if (code) {
-                googleSocialLogin(code).then(response => {
-                    router.replace('/auth/login/');
-                })
-            }
-        };
+        const params = new URLSearchParams(window.location.search);
+        const code = params.get("code");
 
-        handleGoogleCallback();
-    }, [router, searchParams]);
+        if (code && window.opener) {
+            window.opener.postMessage({provider: "google", code}, window.origin);
+            window.close();
+        }
+    }, []);
 
     return <p>Signing you in...</p>;
 }

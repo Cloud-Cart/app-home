@@ -34,9 +34,9 @@ export const LoginMethods = (props: Props) => {
             case 'passkey':
                 return <PasskeyMethod usage={'default'} email={props.email}/>
             case 'google':
-                return <GoogleMethod usage={'default'}/>
+                return <GoogleMethod usage={'default'} email={props.email}/>
             case 'microsoft':
-                return <MicrosoftMethod usage={'default'}/>
+                return <MicrosoftMethod usage={'default'} email={props.email}/>
             case 'facebook':
                 return <FacebookMethod usage={'default'}/>
             default:
@@ -60,7 +60,7 @@ export const LoginMethods = (props: Props) => {
                     {otherOptions.map(method => {
                         switch (method) {
                             case 'google':
-                                return <GoogleMethod key={method} usage={'option'}/>
+                                return <GoogleMethod key={method} usage={'option'} email={props.email}/>
                             case 'facebook':
                                 return <FacebookMethod key={method} usage={'option'}/>;
                             case 'microsoft':
@@ -85,7 +85,7 @@ export const LoginMethods = (props: Props) => {
                                                 stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round"/>
                                         </svg>
                                     </div>
-                                    <span className={' text-gray-700'}>Login with Password</span>
+                                    <span className={'text-gray-700 font-semibold'}>Login with Password</span>
                                 </button>
                             default:
                                 return <PasskeyMethod usage={'option'} email={props.email} key={method}/>;

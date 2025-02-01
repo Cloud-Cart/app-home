@@ -69,7 +69,7 @@ export const PasswordMethod = (props: Props) => {
             >
                 {loading ?
                     <ButtonLoader fill={'#FFFFFF'} width={'1.5rem'} height={'1.5rem'}/> :
-                    <span>Login with Password</span>
+                    <span >Login with Password</span>
                 }
             </button>
         </div>

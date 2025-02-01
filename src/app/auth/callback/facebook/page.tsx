@@ -1,31 +1,17 @@
 'use client';
 
-import {useRouter, useSearchParams} from "next/navigation";
 import {useEffect} from "react";
-import {facebookSocialLogin} from "@/lib/api/auths";
 
 const CallbackPage = () => {
-    const router = useRouter();
-    const searchParams = useSearchParams();
-
     useEffect(() => {
-        const handleFacebookCallback = () => {
-            const code = searchParams.get("code");
-            if (code) {
-                try {
-                    facebookSocialLogin({
-                        code,
-                    }).then(response => {
-                        router.replace("/auth/login/");
-                    })
-                } catch (error) {
-                    router.replace("/auth/error/"); // Redirect to an error page
-                }
-            }
-        };
+        const params = new URLSearchParams(window.location.search);
+        const code = params.get("code");
 
-        handleFacebookCallback();
-    }, [router, searchParams]);
+        if (code && window.opener) {
+            window.opener.postMessage({provider: "facebook", code}, window.origin);
+            window.close();
+        }
+    }, []);
 
     return <p>Signing you in...</p>;
 };
