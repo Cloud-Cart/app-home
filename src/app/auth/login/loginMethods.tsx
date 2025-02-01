@@ -1,20 +1,21 @@
-import {useMemo, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {PasswordMethod} from "@/components/login/PasswordMethod";
-import {Button} from "@/components";
 import {GoogleMethod} from "@/components/login/GoogleMethod";
 import {MicrosoftMethod} from "@/components/login/MicrosoftMethod";
 import {FacebookMethod} from "@/components/login/FacebookMethod";
 import {PasskeyMethod} from "@/components/login/PasskeyMethod";
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
 type Props = {
     email: string,
     loginMethods: string[],
     defaultMethod: string,
+    setEmailError?: (error: string) => void;
 };
 
 
 export const LoginMethods = (props: Props) => {
-    const [selectedMethod, setSelectedMethod] = useState<string>(props.defaultMethod);
+    const [selectedMethod, setSelectedMethod] = useState<string>('');
     const [otherOptionsOpened, setOtherOptionsOpened] = useState<boolean>(false);
 
     const otherOptions = useMemo(
@@ -24,62 +25,75 @@ export const LoginMethods = (props: Props) => {
         [props.loginMethods, selectedMethod]
     );
 
+    useEffect(() => {
+        setSelectedMethod(props.defaultMethod);
+    }, [props.defaultMethod]);
+
     const SelectedComponent = useMemo(() => {
         switch (selectedMethod) {
-            case 'password':
-                return PasswordMethod
             case 'passkey':
-                return PasskeyMethod
+                return <PasskeyMethod usage={'default'} email={props.email}/>
             case 'google':
-                return GoogleMethod
+                return <GoogleMethod usage={'default'} email={props.email}/>
             case 'microsoft':
-                return MicrosoftMethod
+                return <MicrosoftMethod usage={'default'} email={props.email}/>
             case 'facebook':
-                return FacebookMethod
+                return <FacebookMethod usage={'default'}/>
             default:
-                return PasswordMethod
+                return <PasswordMethod email={props.email} setEmailError={props.setEmailError}/>
         }
-    }, [selectedMethod])
+    }, [props.email, props.setEmailError, selectedMethod])
 
     return (
         <>
-            {<SelectedComponent email={props.email}/>}
+            {SelectedComponent}
             {props.loginMethods.length > 0 &&
-                <Button type={'full-cover'} background={'transparent'} className={['mt-2']}
+                <button className={'mt-2 bg-gray-100 w-full py-2 rounded-md text-gray-700 flex flex-row justify-center'}
                         onClick={() => setOtherOptionsOpened(prevState => !prevState)}>
-                    Other options
-                </Button>
+                    <ArrowDropDownIcon
+                        className={(otherOptionsOpened ? 'rotate-180' : 'rotate-0') + ' transition-all transition-300'}/>
+                    <span className={'font-semibold text-gray-600'}>Other options</span>
+                </button>
             }
-            <div className={'w-full h-fit transition-all duration-300'}>
-                {otherOptionsOpened &&
-                    otherOptions.map(method => {
+            {otherOptionsOpened &&
+                <div className={'w-full h-fit transition-all duration-300 p-1 border mt-2 rounded-lg'}>
+                    {otherOptions.map(method => {
                         switch (method) {
                             case 'google':
-                                return <GoogleMethod email={props.email} key={method} />;
+                                return <GoogleMethod key={method} usage={'option'} email={props.email}/>
                             case 'facebook':
-                                return <FacebookMethod email={props.email} key={method} />;
+                                return <FacebookMethod key={method} usage={'option'}/>;
                             case 'microsoft':
-                                return <MicrosoftMethod email={props.email} key={method} />;
+                                return <MicrosoftMethod key={method} usage={'option'}/>;
                             case 'password':
-                                return <Button
-                                    type={'full-cover'}
-                                    background={'transparent'}
+                                return <button
                                     onClick={() => setSelectedMethod('password')}
+                                    className={'flex flex-row justify-start gap-5 hover:bg-gray-200 w-full items-center rounded-md p-1'}
                                     key={method}
                                 >
-                                    Sign in with Password
-                                </Button>
+                                    <div className={'bg-gray-700 rounded p-2'}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px"
+                                             viewBox="0 0 24 24" fill="none">
+                                            <path d="M12 10V14M10.2676 11L13.7317 13M13.7314 11L10.2673 13"
+                                                  stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round"/>
+                                            <path d="M6.73241 10V14M4.99999 11L8.46409 13M8.46386 11L4.99976 13"
+                                                  stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round"/>
+                                            <path d="M17.2681 10V14M15.5356 11L18.9997 13M18.9995 11L15.5354 13"
+                                                  stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round"/>
+                                            <path
+                                                d="M22 12C22 15.7712 22 17.6569 20.8284 18.8284C19.6569 20 17.7712 20 14 20H10C6.22876 20 4.34315 20 3.17157 18.8284C2 17.6569 2 15.7712 2 12C2 8.22876 2 6.34315 3.17157 5.17157C4.34315 4 6.22876 4 10 4H14C17.7712 4 19.6569 4 20.8284 5.17157C21.4816 5.82475 21.7706 6.69989 21.8985 8"
+                                                stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round"/>
+                                        </svg>
+                                    </div>
+                                    <span className={'text-gray-700 font-semibold'}>Login with Password</span>
+                                </button>
                             default:
-                                return <PasskeyMethod email={props.email} key={method} />;
+                                return <PasskeyMethod usage={'option'} email={props.email} key={method}/>;
                         }
                     })
-                }
-            </div>
-
-            {/*<PasskeyMethod email={props.email}/>*/}
-            {/*<GoogleMethod/>*/}
-            {/*<MicrosoftMethod/>*/}
-            {/*<FacebookMethod/>*/}
+                    }
+                </div>
+            }
         </>
     );
 };

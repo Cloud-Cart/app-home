@@ -1,17 +1,61 @@
 import publicInstance from "@/lib/api/instance";
+import {isAxiosError} from "axios";
 
 const getEmailAuthMethods = async (email: string) => {
-    return publicInstance.post(
-        '/auth/methods/',
-        {email}
-    )
+    try {
+        const result = await publicInstance.post(
+            '/auth/methods/',
+            {email}
+        )
+        return result.data
+    } catch (error) {
+        if (isAxiosError(error)) {
+            if (error.response?.status === 400) {
+                return Promise.reject({
+                    status: error.status,
+                    reason: error.response?.data.email[0]
+                })
+            }
+        }
+        return Promise.reject({
+            status: 500,
+            reason: 'Internal Server Error'
+        })
+    }
 }
 
 const authWithPassword = async (email: string, password: string) => {
-    return publicInstance.post(
-        '/auth/login/',
-        {email, password}
-    )
+    try {
+        const response = await publicInstance.post(
+            '/auth/login/',
+            {email, password}
+        )
+        return response.data
+    } catch (error) {
+        if (isAxiosError(error)) {
+            if (error.response?.status === 400) {
+                const data = {
+                    password: '',
+                    email: ''
+                }
+                if (error.response?.data?.email) {
+                    data.email = error.response?.data?.email[0]
+                }
+                if (error.response?.data?.password) {
+                    data.password = error.response?.data?.password[0]
+                }
+                return Promise.reject({
+                    status: error.status,
+                    reason: 'Bad Request',
+                    data
+                })
+            }
+        }
+        return Promise.reject({
+            status: 500,
+            reason: 'Internal Server Error'
+        })
+    }
 }
 
 const beginPasskeyRegistration = async () => {
@@ -53,24 +97,24 @@ const endPasskeyAuthentication = (data: any) => {
     )
 }
 
-const googleSocialLogin = (code: string) => {
+const googleSocialLogin = (code: string, redirectUri: string) => {
     return publicInstance.post(
         '/auth/social-login/google/',
-        {code}
+        {code, redirectUri}
     )
 }
 
-const microsoftSocialLogin = ({code}: { code: string; }) => {
+const microsoftSocialLogin = (code: string, redirectUri: string) => {
     return publicInstance.post(
         '/auth/social-login/microsoft/',
-        {code}
+        {code, redirectUri}
     )
 }
 
-const facebookSocialLogin = ({code}: { code: string; }) => {
+const facebookSocialLogin = (code: string, redirectUri: string) => {
     return publicInstance.post(
         '/auth/social-login/facebook/',
-        {code}
+        {code, redirectUri}
     )
 }
 
