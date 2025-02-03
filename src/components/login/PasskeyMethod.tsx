@@ -2,6 +2,7 @@ import {beginPasskeyAuthentication, endPasskeyAuthentication} from "@/lib/api/au
 import * as React from "react";
 import {useCallback, useState} from "react";
 import {ButtonLoader, SpinnerLoader} from "@/components";
+import {useRouter} from "next/navigation";
 
 type Props = {
     email?: string;
@@ -10,6 +11,8 @@ type Props = {
 
 export const PasskeyMethod = (props: Props) => {
     const [loading, setLoading] = useState(false);
+    const router = useRouter();
+
     //
     // const registerPasskey = () => {
     //     beginPasskeyRegistration().then(res => {
@@ -86,7 +89,13 @@ export const PasskeyMethod = (props: Props) => {
                     },
                     type: credential.type,
                 }
-                endPasskeyAuthentication(publicKeyCredential).then(console.log)
+                endPasskeyAuthentication(publicKeyCredential)
+                    .then(console.log)
+                    .catch(({status}) => {
+                        if (status === 206) {
+                            router.push('/auth/second-step/')
+                        }
+                    })
             }).catch(() => {
             }).finally(() => setLoading(false));
         }).catch(() => {
@@ -96,7 +105,7 @@ export const PasskeyMethod = (props: Props) => {
 
     if (props.usage === 'default') {
         return <button
-            className={'flex flex-row justify-center items-center gap-2 mt-2 px-1 py-2 bg-gray-700 text-gray-200 w-full rounded-md'}
+            className={'flex flex-row justify-center items-center gap-2 mt-2 px-1 py-2 bg-gray-700 text-gray-200 w-full rounded-md disabled:opacity-50'}
             onClick={login}
             disabled={loading}
         >
@@ -110,7 +119,7 @@ export const PasskeyMethod = (props: Props) => {
     }
     if (props.usage === 'button') {
         return <button
-            className={'mt-2  hover:bg-gray-100 flex flex-row gap-2 w-full py-2 justify-center rounded'}
+            className={'mt-2  hover:bg-gray-100 flex flex-row gap-2 w-full py-2 justify-center rounded disabled:opacity-50'}
             onClick={() => login()}
             disabled={loading}
         >

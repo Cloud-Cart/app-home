@@ -67,7 +67,7 @@ export const LoginForm = () => {
                 (!emailValidated) &&
                 <button
                     onClick={() => checkEmail(email)}
-                    className={'flex flex-row gap-2 justify-center items-center mt-2 bg-gray-700 drop-shadow-sm hover:bg-gray-600 text-gray-200 border min-h-9 w-full rounded-md py-2'}
+                    className={'flex flex-row gap-2 justify-center items-center mt-2 bg-gray-700 drop-shadow-sm hover:bg-gray-600 text-gray-200 border min-h-9 w-full rounded-md py-2 disabled:opacity-50'}
                     disabled={loading}
                 >
                     {loading ?
@@ -98,7 +98,8 @@ export const LoginForm = () => {
                         loginMethods={loginMethods}
                         defaultMethod={defaultMethod}
                         setEmailError={setError}
-                    /> :
+                    />
+                    :
                     <LoginFunctions/>
             }
         </>

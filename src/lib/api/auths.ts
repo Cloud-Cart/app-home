@@ -1,10 +1,15 @@
 import publicInstance from "@/lib/api/instance";
 import {isAxiosError} from "axios";
 
+const storeCreds = (access: string, refresh: string) => {
+    localStorage.setItem('access', access);
+    localStorage.setItem('refresh', refresh);
+}
+
 const getEmailAuthMethods = async (email: string) => {
     try {
         const result = await publicInstance.post(
-            '/auth/methods/',
+            '/auth/login/methods/',
             {email}
         )
         return result.data
@@ -27,10 +32,18 @@ const getEmailAuthMethods = async (email: string) => {
 const authWithPassword = async (email: string, password: string) => {
     try {
         const response = await publicInstance.post(
-            '/auth/login/',
+            '/auth/login/password/',
             {email, password}
         )
-        return response.data
+        if (response.status === 200)
+            storeCreds(response.data.access, response.data.refresh)
+        if (response.status === 206) {
+            return Promise.reject({
+                status: 206,
+                reason: 'Multi-Factor Authentication Required',
+                data: response.data
+            })
+        }
     } catch (error) {
         if (isAxiosError(error)) {
             if (error.response?.status === 400) {
@@ -58,6 +71,135 @@ const authWithPassword = async (email: string, password: string) => {
     }
 }
 
+const getSecondStepMethods = async () => {
+    return publicInstance.get(
+        '/auth/login/2fa-methods/'
+    ).then((response) => {
+        if (response.status === 200) {
+            const methods: string[] = []
+            if (!response.data.is2faEnabled)
+                return Promise.reject({
+                    status: 403,
+                    reason: 'Forbidden'
+                })
+            if (response.data.otp2faEnabled)
+                methods.push('otp')
+            if (response.data.hotpVerficationEnabled)
+                methods.push('authenticator')
+            return {
+                email: response.data.email,
+                methods
+            }
+        }
+        return {
+            email: null,
+            methods: []
+        }
+    }).catch((error) => {
+        if (isAxiosError(error)) {
+            if (error.response?.status === 403) {
+                return Promise.reject({
+                    status: 403,
+                    reason: 'Forbidden'
+                })
+            }
+        }
+        return Promise.reject({
+            status: 500,
+            reason: 'Internal Server Error'
+        })
+    })
+}
+
+const sendSecondStepOTP = async () => {
+    try {
+        const response = await publicInstance.get(
+            '/auth/login/request-2fa-otp/',
+        )
+        return response.data
+    } catch (error) {
+        if (isAxiosError(error)) {
+            if (error.response?.status === 403)
+                return Promise.reject({
+                    status: 403,
+                    reason: 'Forbidden'
+                });
+            if (error.response?.status === 401)
+                return Promise.reject({
+                    status: 405,
+                    reason: 'Method Not Allowed'
+                });
+        }
+        return Promise.reject({
+            status: 500,
+            reason: 'Internal Server Error'
+        });
+    }
+}
+
+const verifyEmailLoginOTP = async (otp: string) => {
+    try {
+        const response = await publicInstance.post(
+            '/auth/login/verify-email-otp/',
+            {otp}
+        );
+        storeCreds(response.data.access, response.data.refresh)
+        return response.data
+    } catch (error) {
+        if (isAxiosError(error)) {
+            if (error.response?.status === 400)
+                return Promise.reject({
+                    status: 400,
+                    reason: 'Bad Request',
+                    data: error.response?.data
+                });
+            if (error.response?.status === 403)
+                return Promise.reject({
+                    status: 403,
+                    reason: 'Forbidden'
+                });
+            if (error.response?.status === 401)
+                return Promise.reject({
+                    status: 401,
+                    reason: 'Unauthorized'
+                });
+        }
+        return Promise.reject({
+            status: 500,
+            reason: 'Internal Server Error'
+        });
+    }
+}
+
+const verifyAuthenticatorAppOTP = async (otp: string) => {
+    try {
+        const response = await publicInstance.post(
+            '/auth/login/verify-app-otp/',
+            {otp}
+        );
+        storeCreds(response.data.access, response.data.refresh)
+        return response.data
+    } catch (error) {
+        if (isAxiosError(error)) {
+            if (error.response?.status === 400)
+                return Promise.reject({
+                    status: 400,
+                    reason: 'Bad Request',
+                    data: error.response?.data
+                });
+            if (error.response?.status === 403)
+                return Promise.reject({
+                    status: 403,
+                    reason: 'Forbidden'
+                });
+        }
+        return Promise.reject({
+            status: 500,
+            reason: 'Internal Server Error'
+        });
+    }
+}
+
 const beginPasskeyRegistration = async () => {
     return publicInstance.get(
         '/auth/b-passkey-registration/',
@@ -81,7 +223,7 @@ const endPasskeyRegistration = async (publicKeyCredential: {
 
 const beginPasskeyAuthentication = (email?: string) => {
     return publicInstance.get(
-        '/auth/b-passkey-authentication/',
+        '/auth/passkey/b-passkey-authentication/',
         {
             params: {
                 email,
@@ -90,32 +232,124 @@ const beginPasskeyAuthentication = (email?: string) => {
     )
 }
 
-const endPasskeyAuthentication = (data: any) => {
-    return publicInstance.post(
-        '/auth/c-passkey-authentication/',
-        data
-    )
+const endPasskeyAuthentication = async (data: any) => {
+    try{
+        const response = await publicInstance.post(
+            '/auth/passkey/c-passkey-authentication/',
+            data
+        )
+        if (response.status === 206){
+            return Promise.reject({
+                status: 206,
+                reason: 'Multi-Factor Authentication Required',
+                data: response.data
+            })
+        }
+        storeCreds(response.data.access, response.data.refresh)
+        return response.data
+    }
+    catch (error) {
+        if (isAxiosError(error)) {
+            if (error.response?.status === 400)
+                return Promise.reject({
+                    status: 400,
+                    reason: 'Bad Request',
+                    data: error.response?.data
+                });
+        }
+    }
 }
 
-const googleSocialLogin = (code: string, redirectUri: string) => {
-    return publicInstance.post(
-        '/auth/social-login/google/',
-        {code, redirectUri}
-    )
+const googleSocialLogin = async (code: string, redirectUri: string) => {
+    try {
+        const response = await publicInstance.post('/auth/social-login/google/', {code, redirectUri});
+
+        if (response.status === 206) {
+            return Promise.reject({
+                status: 206,
+                reason: 'Multi-Factor Authentication Required',
+                data: response.data
+            })
+        }
+
+        storeCreds(response.data.access, response.data.refresh);
+        return response;
+    } catch (error) {
+        if (isAxiosError(error) && error.response?.status === 400) {
+            return Promise.reject({
+                status: 400,
+                reason: 'Bad Request',
+                data: error.response?.data
+            })
+        }
+
+        return Promise.reject({
+            status: 500,
+            reason: 'Internal Server Error'
+        })
+    }
+};
+
+const microsoftSocialLogin = async (code: string, redirectUri: string) => {
+    try {
+        const response = await publicInstance.post(
+            '/auth/social-login/microsoft/',
+            {code, redirectUri}
+        )
+        if (response.status === 206) {
+            return Promise.reject({
+                status: 206,
+                reason: 'Multi-Factor Authentication Required',
+                data: response.data
+            })
+        }
+        storeCreds(response.data.access, response.data.refresh)
+        return response.data
+    } catch (error) {
+        if (isAxiosError(error)) {
+            if (error.response?.status === 400)
+                return Promise.reject({
+                    status: 400,
+                    reason: 'Bad Request',
+                    data: error.response?.data
+                });
+        }
+        return Promise.reject({
+            status: 500,
+            reason: 'Internal Server Error'
+        });
+    }
 }
 
-const microsoftSocialLogin = (code: string, redirectUri: string) => {
-    return publicInstance.post(
-        '/auth/social-login/microsoft/',
-        {code, redirectUri}
-    )
-}
-
-const facebookSocialLogin = (code: string, redirectUri: string) => {
-    return publicInstance.post(
-        '/auth/social-login/facebook/',
-        {code, redirectUri}
-    )
+const facebookSocialLogin = async (code: string, redirectUri: string) => {
+    try {
+        const response = await publicInstance.post(
+            '/auth/social-login/facebook/',
+            {code, redirectUri}
+        )
+        if (response.status === 206) {
+            return Promise.reject({
+                status: 206,
+                reason: 'Multi-Factor Authentication Required',
+                data: response.data
+            })
+        }
+        storeCreds(response.data.access, response.data.refresh)
+        return response.data
+    } catch (error) {
+        if (isAxiosError(error)) {
+            if (error.response?.status === 400)
+                return Promise.reject({
+                    status: 400,
+                    reason: 'Bad Request',
+                    data: error.response?.data
+                });
+        }
+        return Promise.reject({
+            status: 500,
+            reason: 'Internal Server Error'
+        });
+    }
 }
 
 export {
@@ -127,5 +361,9 @@ export {
     endPasskeyAuthentication,
     googleSocialLogin,
     microsoftSocialLogin,
-    facebookSocialLogin
+    facebookSocialLogin,
+    getSecondStepMethods,
+    sendSecondStepOTP,
+    verifyEmailLoginOTP,
+    verifyAuthenticatorAppOTP
 }

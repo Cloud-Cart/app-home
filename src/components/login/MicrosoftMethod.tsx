@@ -2,6 +2,7 @@ import * as React from "react";
 import {useCallback, useState} from "react";
 import {ButtonLoader, SpinnerLoader} from "@/components";
 import {microsoftSocialLogin} from "@/lib/api/auths";
+import {useRouter} from "next/navigation";
 
 type Props = {
     usage: 'default' | 'option' | 'button',
@@ -10,6 +11,7 @@ type Props = {
 
 export const MicrosoftMethod = (props: Props) => {
     const [loading, setLoading] = useState(false);
+    const router = useRouter();
 
     const login = useCallback(() => {
         setLoading(true);
@@ -35,7 +37,13 @@ export const MicrosoftMethod = (props: Props) => {
             if (event.origin !== window.location.origin || !event.data.provider || event.data.provider !== 'microsoft') return;
             microsoftSocialLogin(event.data.code, REDIRECT_URI).then(response => {
                 console.log("Microsoft login response:", response.data);
-            }).finally(() => setLoading(false));
+            })
+                .catch(
+                    ({status}) => {
+                        if (status === 206) router.push("/auth/second-step/")
+                    }
+                )
+                .finally(() => setLoading(false));
             window.removeEventListener("message", handleMessage);
             popup.close();
         };
@@ -76,7 +84,7 @@ export const MicrosoftMethod = (props: Props) => {
     }
     if (props.usage === 'default') {
         return <button
-            className={'flex flex-row justify-center items-center gap-2 mt-2 px-1 py-2 bg-gray-700 text-gray-200 w-full rounded-md'}
+            className={'flex flex-row justify-center items-center gap-2 mt-2 px-1 py-2 bg-gray-700 text-gray-200 w-full rounded-md disabled:opacity-50'}
             onClick={login}
             disabled={loading}
         >
@@ -89,8 +97,11 @@ export const MicrosoftMethod = (props: Props) => {
         </button>
     }
     return (
-        <button onClick={login}
-                className={'flex flex-row justify-start gap-5 hover:bg-gray-200 w-full items-center rounded-md p-1'}>
+        <button
+            onClick={login}
+            className={'flex flex-row justify-start gap-5 hover:bg-gray-200 w-full items-center rounded-md p-1'}
+            disabled={loading}
+        >
             <div className={'bg-gray-700 rounded p-2'}>
                 {
                     loading ?
