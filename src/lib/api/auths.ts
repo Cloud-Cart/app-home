@@ -352,6 +352,29 @@ const facebookSocialLogin = async (code: string, redirectUri: string) => {
     }
 }
 
+const sendResetPasswordEmail = async (email: string) => {
+    try {
+        const response = await publicInstance.post(
+            '/auth/reset-password/send-email/',
+            {email}
+        )
+        return response.data
+    } catch (error) {
+        if (isAxiosError(error)) {
+            if (error.response?.status === 400)
+                return Promise.reject({
+                    status: 400,
+                    reason: 'Bad Request',
+                    data: error.response?.data
+                });
+        }
+        return Promise.reject({
+            status: 500,
+            reason: 'Internal Server Error'
+        });
+    }
+}
+
 export {
     getEmailAuthMethods,
     authWithPassword,
@@ -365,5 +388,6 @@ export {
     getSecondStepMethods,
     sendSecondStepOTP,
     verifyEmailLoginOTP,
-    verifyAuthenticatorAppOTP
+    verifyAuthenticatorAppOTP,
+    sendResetPasswordEmail
 }
