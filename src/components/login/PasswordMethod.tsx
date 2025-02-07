@@ -50,7 +50,7 @@ export const PasswordMethod = (props: Props) => {
                     } else if (status === 206) router.push("/auth/second-step/")
                 }
             ).finally(() => setLoading(false));
-    }, [props, passwordVal]);
+    }, [props, passwordVal, router]);
     const changePassword = useCallback((password: string) => {
         if (error) setError('');
         setPasswordVal(password);

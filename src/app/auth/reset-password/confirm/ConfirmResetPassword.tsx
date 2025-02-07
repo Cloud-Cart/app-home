@@ -33,7 +33,7 @@ export const ConfirmResetPassword = () => {
             return;
         }
         verifyResetPasswordChallenge(token)
-            .then(data => {
+            .then(() => {
 
             })
             .catch(({status, data}) => {
