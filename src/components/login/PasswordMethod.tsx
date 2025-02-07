@@ -60,9 +60,13 @@ export const PasswordMethod = (props: Props) => {
         <div className={'w-full'}>
             <div className={'mt-3 relative'}>
                 <label htmlFor="password">Password</label>
-                <input name={'password'} type={passwordVisible ? 'text' : 'password'}
-                       className={'mt-2 outline-none rounded-md border w-full py-2 pl-2 pr-8'}
-                       onChange={e => changePassword(e.target.value)} ref={passwordField}/>
+                <input
+                    name={'password'}
+                    type={passwordVisible ? 'text' : 'password'}
+                    className={'mt-2 outline-none rounded-md border w-full py-2 pl-2 pr-8'}
+                    onChange={e => changePassword(e.target.value)} ref={passwordField}
+                    autoComplete={'current-password'}
+                />
                 <div className={'absolute bottom-2 right-2'}>
                     {passwordVisibilityIcon}
                 </div>

@@ -375,6 +375,60 @@ const sendResetPasswordEmail = async (email: string) => {
     }
 }
 
+const setResetPassword = async (password1: string, password2: string) => {
+    try {
+        const response = await publicInstance.post(
+            '/auth/reset-password/reset/',
+            {password1, password2}
+        )
+        return response.data
+    } catch (error) {
+        if (isAxiosError(error)) {
+            if (error.response?.status === 400)
+                return Promise.reject({
+                    status: 400,
+                    reason: 'Bad Request',
+                    data: error.response?.data
+                });
+            if (error.response?.status === 401){
+                return Promise.reject({
+                    status: 401,
+                    reason: 'Unauthorized'
+                })
+            }
+        }
+        return Promise.reject({
+            status: 500,
+            reason: 'Internal Server Error'
+        });
+    }
+};
+
+
+const verifyResetPasswordChallenge = async (token: string) => {
+    try{
+        const response = await publicInstance.post(
+            '/auth/reset-password/verify-challenge/',
+            {token}
+        )
+        return response.data
+    }
+    catch (e) {
+        if (isAxiosError(e)){
+            if (e.response?.status === 400)
+                return Promise.reject({
+                    status: 400,
+                    reason: 'Bad Request',
+                    data: e.response?.data
+                })
+        }
+        return Promise.reject({
+            status: 500,
+            reason: 'Internal Server Error'
+        })
+    }
+}
+
 export {
     getEmailAuthMethods,
     authWithPassword,
@@ -389,5 +443,7 @@ export {
     sendSecondStepOTP,
     verifyEmailLoginOTP,
     verifyAuthenticatorAppOTP,
-    sendResetPasswordEmail
+    sendResetPasswordEmail,
+    verifyResetPasswordChallenge,
+    setResetPassword
 }
