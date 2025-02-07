@@ -47,6 +47,7 @@ export const LoginForm = () => {
             <div className={'relative'}>
                 <label htmlFor="email">Email</label>
                 <input
+                    autoComplete={'email'}
                     name="email"
                     type={'email'}
                     value={email}
