@@ -73,7 +73,7 @@ const authWithPassword = async (email: string, password: string) => {
 
 const getSecondStepMethods = async () => {
     return publicInstance.get(
-        '/auth/login/2fa-methods/'
+        '/auth/second-step/2fa-methods/'
     ).then((response) => {
         if (response.status === 200) {
             const methods: string[] = []
@@ -114,7 +114,7 @@ const getSecondStepMethods = async () => {
 const sendSecondStepOTP = async () => {
     try {
         const response = await publicInstance.get(
-            '/auth/login/request-2fa-otp/',
+            '/auth/second-step/request-2fa-otp/',
         )
         return response.data
     } catch (error) {
@@ -140,7 +140,7 @@ const sendSecondStepOTP = async () => {
 const verifyEmailLoginOTP = async (otp: string) => {
     try {
         const response = await publicInstance.post(
-            '/auth/login/verify-email-otp/',
+            '/auth/second-step/verify-email-otp/',
             {otp}
         );
         storeCreds(response.data.access, response.data.refresh)
@@ -174,7 +174,7 @@ const verifyEmailLoginOTP = async (otp: string) => {
 const verifyAuthenticatorAppOTP = async (otp: string) => {
     try {
         const response = await publicInstance.post(
-            '/auth/login/verify-app-otp/',
+            '/auth/second-step/verify-app-otp/',
             {otp}
         );
         storeCreds(response.data.access, response.data.refresh)
