@@ -233,12 +233,12 @@ const beginPasskeyAuthentication = (email?: string) => {
 }
 
 const endPasskeyAuthentication = async (data: any) => {
-    try{
+    try {
         const response = await publicInstance.post(
             '/auth/passkey/c-passkey-authentication/',
             data
         )
-        if (response.status === 206){
+        if (response.status === 206) {
             return Promise.reject({
                 status: 206,
                 reason: 'Multi-Factor Authentication Required',
@@ -247,8 +247,7 @@ const endPasskeyAuthentication = async (data: any) => {
         }
         storeCreds(response.data.access, response.data.refresh)
         return response.data
-    }
-    catch (error) {
+    } catch (error) {
         if (isAxiosError(error)) {
             if (error.response?.status === 400)
                 return Promise.reject({
@@ -390,7 +389,7 @@ const setResetPassword = async (password1: string, password2: string) => {
                     reason: 'Bad Request',
                     data: error.response?.data
                 });
-            if (error.response?.status === 401){
+            if (error.response?.status === 401) {
                 return Promise.reject({
                     status: 401,
                     reason: 'Unauthorized'
@@ -406,20 +405,47 @@ const setResetPassword = async (password1: string, password2: string) => {
 
 
 const verifyResetPasswordChallenge = async (token: string) => {
-    try{
+    try {
         const response = await publicInstance.post(
             '/auth/reset-password/verify-challenge/',
             {token}
         )
         return response.data
-    }
-    catch (e) {
-        if (isAxiosError(e)){
+    } catch (e) {
+        if (isAxiosError(e)) {
             if (e.response?.status === 400)
                 return Promise.reject({
                     status: 400,
                     reason: 'Bad Request',
                     data: e.response?.data
+                })
+        }
+        return Promise.reject({
+            status: 500,
+            reason: 'Internal Server Error'
+        })
+    }
+}
+
+const recoverAccount = async (code: string) => {
+    try {
+        const response = await publicInstance.post(
+            '/auth/second-step/recover-account/',
+            {recoveryCode: code}
+        )
+        return response.data
+    } catch (e) {
+        if (isAxiosError(e)) {
+            if (e.response?.status === 400)
+                return Promise.reject({
+                    status: 400,
+                    reason: 'Bad Request',
+                    data: e.response?.data
+                })
+            if (e.response?.status === 401)
+                return Promise.reject({
+                    status: 401,
+                    reason: 'Unauthorized'
                 })
         }
         return Promise.reject({
@@ -445,5 +471,6 @@ export {
     verifyAuthenticatorAppOTP,
     sendResetPasswordEmail,
     verifyResetPasswordChallenge,
-    setResetPassword
+    setResetPassword,
+    recoverAccount
 }
