@@ -13,7 +13,11 @@ type errorType = {
     common?: string;
 }
 
-export const ConfirmResetPassword = () => {
+type Props = {
+    setSubtext: (subtext: string) => void;
+};
+
+export const ConfirmResetPassword = (props: Props) => {
     const [challengeVerified, setChallengeVerified] = useState(false);
     const [error, setError] = useState<errorType>();
     const [challengeVerificationError, setChallengeVerificationError] = useState<string>();
@@ -34,7 +38,7 @@ export const ConfirmResetPassword = () => {
         }
         verifyResetPasswordChallenge(token)
             .then(() => {
-
+                props.setSubtext('Enter new credentials');
             })
             .catch(({status, data}) => {
                 if (status === 400) {
@@ -42,9 +46,10 @@ export const ConfirmResetPassword = () => {
                 } else {
                     setChallengeVerificationError('Something went wrong. Please try again later');
                 }
+                props.setSubtext('');
             })
             .finally(() => setChallengeVerified(true));
-    }, [searchParams]);
+    }, [props, searchParams]);
 
     const passwordComplexity = useMemo(() => {
         const errors: string[] = [];
@@ -88,8 +93,9 @@ export const ConfirmResetPassword = () => {
                 } else {
                     setError({common: 'Something went wrong. Please try again later'});
                 }
+                props.setSubtext('');
             });
-    }, [password, repeatPassword]);
+    }, [password, props, repeatPassword]);
 
     if (success) {
         return (

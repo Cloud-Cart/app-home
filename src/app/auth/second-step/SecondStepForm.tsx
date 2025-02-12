@@ -6,9 +6,7 @@ import {EmailVerification} from "@/app/auth/second-step/EmailVerification";
 import {useRouter} from "next/navigation";
 import Link from "next/link";
 
-type Props = {};
-
-export const SecondStepForm = (props: Props) => {
+export const SecondStepForm = () => {
     const [secondStepMethods, setSecondStepMethods] = useState<string[]>([]);
     const [selectedMethod, setSelectedMethod] = useState<string>();
     const [email, setEmail] = useState<string>();
@@ -69,7 +67,7 @@ export const SecondStepForm = (props: Props) => {
             <p className={'font-sans text-xs mt-3 w-full text-center font-semibold'}>
                 Trouble with {selectedMethod === 'otp' ? 'email' : 'authenticator'}? {' '}
                 <Link
-                    href={'/login/recover-account/'}
+                    href={'/auth/recover-account/'}
                     className={'cursor-pointer text-blue-700 underline'}
                 >
                     Recover your account
