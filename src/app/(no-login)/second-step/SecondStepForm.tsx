@@ -67,7 +67,7 @@ export const SecondStepForm = () => {
             <p className={'font-sans text-xs mt-3 w-full text-center font-semibold'}>
                 Trouble with {selectedMethod === 'otp' ? 'email' : 'authenticator'}? {' '}
                 <Link
-                    href={'/(auth)/recover-account/'}
+                    href={'/(no-login)/recover-account/'}
                     className={'cursor-pointer text-blue-700 underline'}
                 >
                     Recover your account

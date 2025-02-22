@@ -1,10 +1,10 @@
 'use client'
-import {useCallback, useState} from "react";
+import {useCallback, useMemo, useState} from "react";
 import EditIcon from '@mui/icons-material/Edit';
 import {getEmailAuthMethods} from "@/lib/api/auths";
-import {LoginMethods} from "@/app/(auth)/login/loginMethods";
-import {LoginFunctions} from "@/app/(auth)/login/loginFunctions";
 import {ButtonLoader} from "@/components";
+import {LoginMethods} from "@/app/(no-login)/auth/loginMethods";
+import {LoginFunctions} from "@/app/(no-login)/auth/loginFunctions";
 
 export const LoginForm = () => {
     const [email, setEmail] = useState<string>('');
@@ -37,9 +37,14 @@ export const LoginForm = () => {
         setError('');
     }, []);
 
+    const isValidEmail = useMemo(() => {
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        return emailRegex.test(email);
+    }, [email]);
+
     const changeEmail = useCallback((value: string) => {
         if (error) setError('');
-        setEmail(value);
+        setEmail(value.toLowerCase());
     }, [error]);
 
     return (
@@ -68,8 +73,8 @@ export const LoginForm = () => {
                 (!emailValidated) &&
                 <button
                     onClick={() => checkEmail(email)}
-                    className={'flex flex-row gap-2 justify-center items-center mt-2 bg-gray-700 drop-shadow-sm hover:bg-gray-600 text-gray-200 border min-h-9 w-full rounded-md py-2 disabled:opacity-50'}
-                    disabled={loading}
+                    className={'flex flex-row gap-2 justify-center items-center mt-2 bg-gray-700 drop-shadow-sm disabled:hover:bg-gray-700 hover:bg-gray-600 text-gray-200 border min-h-9 w-full rounded-md py-2 disabled:opacity-50'}
+                    disabled={loading || !isValidEmail}
                 >
                     {loading ?
                         <ButtonLoader fill={'#FFFFFF'} width={'1.5rem'} height={'1.5rem'}/> :

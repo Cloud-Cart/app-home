@@ -101,7 +101,7 @@ export const ConfirmResetPassword = (props: Props) => {
         return (
             <div className={'w-full flex flex-col justify-center'}>
                 <p className={'text-green-600 text-center text-sm m-3 font-semibold'}>Password reset successfully</p>
-                <Link href={'/(auth)/login/'} className={'w-full'}>
+                <Link href={'/(no-login)/auth/'} className={'w-full'}>
                     <button
                         className={'w-full bg-gray-700 text-gray-200 p-2 rounded-md font-semibold shadow mt-2'}
                     >
@@ -119,7 +119,7 @@ export const ConfirmResetPassword = (props: Props) => {
                     challengeVerificationError ?
                         <>
                             <p className={'text-red-600 text-center text-sm m-3 font-semibold'}>{challengeVerificationError}</p>
-                            <Link href={'/(auth)/reset-password/'} className={'w-full'}>
+                            <Link href={'/(no-login)/reset-password/'} className={'w-full'}>
                                 <button
                                     className={'w-full bg-gray-700 text-gray-200 p-2 rounded-md font-semibold shadow mt-2'}
                                 >
