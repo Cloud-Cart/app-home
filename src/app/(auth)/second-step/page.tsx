@@ -1,4 +1,4 @@
-import {SecondStepForm} from "@/app/auth/second-step/SecondStepForm";
+import {SecondStepForm} from "@/app/(auth)/second-step/SecondStepForm";
 
 type Props = {};
 

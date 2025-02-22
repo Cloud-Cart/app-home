@@ -2,8 +2,8 @@
 import {useCallback, useState} from "react";
 import EditIcon from '@mui/icons-material/Edit';
 import {getEmailAuthMethods} from "@/lib/api/auths";
-import {LoginMethods} from "@/app/auth/login/loginMethods";
-import {LoginFunctions} from "@/app/auth/login/loginFunctions";
+import {LoginMethods} from "@/app/(auth)/login/loginMethods";
+import {LoginFunctions} from "@/app/(auth)/login/loginFunctions";
 import {ButtonLoader} from "@/components";
 
 export const LoginForm = () => {

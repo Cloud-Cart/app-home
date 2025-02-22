@@ -1,5 +1,5 @@
 'use client'
-import {ConfirmResetPassword} from "@/app/auth/reset-password/confirm/ConfirmResetPassword";
+import {ConfirmResetPassword} from "@/app/(auth)/reset-password/confirm/ConfirmResetPassword";
 import {useState} from "react";
 
 export default function Page() {

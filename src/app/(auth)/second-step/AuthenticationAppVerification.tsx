@@ -1,4 +1,4 @@
-import CodeInput from "@/app/auth/second-step/CodeInput";
+import CodeInput from "@/app/(auth)/second-step/CodeInput";
 import {useCallback, useState} from "react";
 import {useRouter} from "next/navigation";
 import {verifyAuthenticatorAppOTP, verifyEmailLoginOTP} from "@/lib/api/auths";

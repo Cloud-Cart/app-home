@@ -17,7 +17,7 @@ export const FacebookMethod = (props: Props) => {
     const login = useCallback(() => {
         setLoading(true);
         const APP_ID = process.env.NEXT_PUBLIC_FACEBOOK_API_ID;
-        const REDIRECT_URI = `${process.env.NEXT_PUBLIC_DOMAIN}/auth/callback/facebook?provider=facebook`;
+        const REDIRECT_URI = `${process.env.NEXT_PUBLIC_DOMAIN}/callback/facebook?provider=facebook`;
         const authUrl = `https://www.facebook.com/v12.0/dialog/oauth?client_id=${APP_ID}&redirect_uri=${REDIRECT_URI}&scope=email,public_profile`;
 
         const width = 500, height = 600;
