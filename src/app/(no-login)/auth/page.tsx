@@ -2,7 +2,7 @@
 import {EmailForm} from "@/app/(no-login)/auth/emailForm";
 import {LoginFunctions} from "@/app/(no-login)/auth/loginFunctions";
 import {useRouter, useSearchParams} from "next/navigation";
-import {useCallback, useEffect, useState} from "react";
+import {useCallback, useEffect, useMemo, useState} from "react";
 import {LoginForm} from "@/app/(no-login)/auth/loginForm";
 import {RegisterForm} from "@/app/(no-login)/auth/registerForm";
 
@@ -39,10 +39,16 @@ export default function Page() {
         router.push('/auth');
     }, [router]);
 
+    const heading = useMemo(() => {
+        if (mode === 'login') return 'Log in to your account';
+        if (mode === 'register') return 'Register your account';
+        return 'Welcome';
+    }, [mode]);
+
     return (
         <>
             <div className={'container w-fit h-fit mb-4'}>
-                <h3 className={'text-2xl font-bold'}>Log in</h3>
+                <h3 className={'text-2xl font-bold'}>{heading}</h3>
                 <p className={'font-semibold text-sm text-gray-500'}>Continue to Cloud Cart</p>
             </div>
             <EmailForm

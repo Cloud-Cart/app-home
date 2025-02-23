@@ -4,7 +4,7 @@ import {useSearchParams} from "next/navigation";
 import {setResetPassword, verifyResetPasswordChallenge} from "@/lib/api/auths";
 import {SpinnerLoader} from "@/components";
 import Link from "next/link";
-import {ErrorProgressBar} from "@/components/general/ErrorProgressBar";
+import {ErrorProgressBar} from "@/components";
 import {Visibility} from "@mui/icons-material";
 
 type errorType = {

@@ -3,11 +3,7 @@ import {useCallback, useEffect, useMemo, useState} from "react";
 import {getEmailAuthMethods} from "@/lib/api/auths";
 import {useRouter, useSearchParams} from "next/navigation";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import {GoogleMethod} from "@/components/login/GoogleMethod";
-import {FacebookMethod} from "@/components/login/FacebookMethod";
-import {MicrosoftMethod} from "@/components/login/MicrosoftMethod";
-import {PasskeyMethod} from "@/components/login/PasskeyMethod";
-import {PasswordMethod} from "@/components/login/PasswordMethod";
+import {FacebookLogin, GoogleLogin, MicrosoftLogin, PasskeyLogin, PasswordLogin} from "@/components";
 
 type Props = {
     setEmailError?: (error: string) => void;
@@ -32,15 +28,15 @@ export const LoginForm = (props: Props) => {
     const SelectedComponent = useMemo(() => {
         switch (selectedMethod) {
             case 'passkey':
-                return <PasskeyMethod usage={'default'} email={email}/>
+                return <PasskeyLogin usage={'default'} email={email}/>
             case 'google':
-                return <GoogleMethod usage={'default'} email={email}/>
+                return <GoogleLogin usage={'default'} email={email}/>
             case 'microsoft':
-                return <MicrosoftMethod usage={'default'} email={email}/>
+                return <MicrosoftLogin usage={'default'} email={email}/>
             case 'facebook':
-                return <FacebookMethod usage={'default'}/>
+                return <FacebookLogin usage={'default'}/>
             default:
-                return <PasswordMethod email={email}/>
+                return <PasswordLogin email={email}/>
         }
     }, [email, selectedMethod]);
 
@@ -98,11 +94,11 @@ export const LoginForm = (props: Props) => {
                     {otherOptions.map(method => {
                         switch (method) {
                             case 'google':
-                                return <GoogleMethod key={method} usage={'option'} email={email}/>
+                                return <GoogleLogin key={method} usage={'option'} email={email}/>
                             case 'facebook':
-                                return <FacebookMethod key={method} usage={'option'}/>;
+                                return <FacebookLogin key={method} usage={'option'}/>;
                             case 'microsoft':
-                                return <MicrosoftMethod key={method} usage={'option'}/>;
+                                return <MicrosoftLogin key={method} usage={'option'}/>;
                             case 'password':
                                 return <button
                                     onClick={() => setSelectedMethod('password')}
@@ -126,7 +122,7 @@ export const LoginForm = (props: Props) => {
                                     <span className={'text-gray-700 font-semibold'}>Login with Password</span>
                                 </button>
                             default:
-                                return <PasskeyMethod usage={'option'} email={email} key={method}/>;
+                                return <PasskeyLogin usage={'option'} email={email} key={method}/>;
                         }
                     })
                     }
