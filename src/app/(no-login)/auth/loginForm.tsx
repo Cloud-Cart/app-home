@@ -1,5 +1,5 @@
 'use client'
-import {useCallback, useEffect, useMemo, useRef, useState} from "react";
+import {useCallback, useEffect, useMemo, useState} from "react";
 import {getEmailAuthMethods} from "@/lib/api/auths";
 import {useRouter, useSearchParams} from "next/navigation";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
@@ -91,8 +91,7 @@ export const LoginForm = (props: Props) => {
                         className={(otherOptionsOpened ? 'rotate-180' : 'rotate-0') + ' transition-all transition-300'}
                     />
                     <span className={'font-semibold text-gray-600'}>Other options</span>
-                </button
-                >
+                </button>
             }
             {otherOptionsOpened &&
                 <div className={'w-full h-fit  transition-all duration-300 p-1 border mt-2 rounded-lg'}>

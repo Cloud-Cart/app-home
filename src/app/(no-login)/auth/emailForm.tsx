@@ -61,11 +61,15 @@ export const EmailForm = (props: Props) => {
                     className={`w-full mt-1 outline-none border rounded px-2 py-2 read-only:cursor-default read-only:border-gray-300 read-only:border-2 read-only:bg-gray-50 pr-8 cursor-text`}
                 />
                 {props.readonly && (
-                    <button className={'absolute bottom-3 right-2'} onClick={() => {
-                        if (props.removeEmail) {
-                            props.removeEmail();
-                        }
-                    }}>
+                    <button
+                        className={'absolute bottom-3 right-2'}
+                        onClick={() => {
+                            if (props.removeEmail) {
+                                props.removeEmail();
+                            }
+                        }}
+                        tabIndex={-1}
+                    >
                         <EditIcon fill="#e5e7eb" width={'18'} height={'18'} style={{width: '18px', height: '18px'}}/>
                     </button>
                 )}

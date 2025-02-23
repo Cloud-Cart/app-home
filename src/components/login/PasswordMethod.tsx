@@ -1,9 +1,9 @@
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {Visibility, VisibilityOff} from "@mui/icons-material";
+import {useCallback, useEffect, useRef, useState} from 'react';
 import {authWithPassword} from "@/lib/api/auths";
 import {ButtonLoader} from "@/components";
 import {useRouter} from "next/navigation";
 import Link from "next/link";
+import {PasswordField} from "@/components/general/PasswordField";
 
 type Props = {
     email: string;
@@ -12,22 +12,10 @@ type Props = {
 
 export const PasswordMethod = (props: Props) => {
     const [passwordVal, setPasswordVal] = useState('');
-    const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
     const [error, setError] = useState('');
     const passwordField = useRef<HTMLInputElement>(null);
     const [loading, setLoading] = useState(false);
     const router = useRouter();
-
-    const passwordVisibilityIcon = useMemo(() => {
-        return <button
-            onMouseDown={() => setPasswordVisible(true)}
-            onMouseUp={() => setPasswordVisible(false)}
-            onMouseLeave={() => setPasswordVisible(false)}
-        >
-            {passwordVisible ? <Visibility fill={'#5C5F62'} style={{width: '17px'}}/> :
-                <VisibilityOff fill={'#5C5F62'} style={{width: '17px'}}/>}
-        </button>
-    }, [passwordVisible]);
 
     const login = useCallback(() => {
         setLoading(true);
@@ -68,23 +56,17 @@ export const PasswordMethod = (props: Props) => {
             if (!passwordVal || loading) return;
             login();
         }}>
-            <div className={'mt-3 relative'}>
-                <label htmlFor="password">Password</label>
-                <input
-                    name={'password'}
-                    type={passwordVisible ? 'text' : 'password'}
-                    className={'mt-2 outline-none rounded-md border w-full py-2 pl-2 pr-8'}
-                    onChange={e => changePassword(e.target.value)}
-                    ref={passwordField}
-                    autoComplete={'current-password'}
-                    placeholder={'Enter your password'}
-                    readOnly={loading}
-                />
-                <div className={'absolute bottom-2 right-2'}>
-                    {passwordVisibilityIcon}
-                </div>
-            </div>
-            {error && (<span className={'text-red-600 text-xs font-semibold'}>{error}</span>)}
+            <PasswordField
+                value={passwordVal}
+                changeValue={changePassword}
+                label={'Password'}
+                loading={loading}
+                name={'password'}
+                placeholder={'Enter your password'}
+                ref={passwordField}
+                autocomplete={'current-password'}
+                error={error}
+            />
             <p className={'text-xs font-semibold mb-3 mt-1.5 text-end'}>Forgot your password? <Link
                 href={'/(no-login)/reset-password/'} className={'text-blue-600'}>Reset here</Link></p>
             <button
