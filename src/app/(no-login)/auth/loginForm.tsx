@@ -1,21 +1,54 @@
 'use client'
-import {useCallback, useMemo, useState} from "react";
-import EditIcon from '@mui/icons-material/Edit';
+import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {getEmailAuthMethods} from "@/lib/api/auths";
-import {ButtonLoader} from "@/components";
-import {LoginMethods} from "@/app/(no-login)/auth/loginMethods";
-import {LoginFunctions} from "@/app/(no-login)/auth/loginFunctions";
+import {useRouter, useSearchParams} from "next/navigation";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import {GoogleMethod} from "@/components/login/GoogleMethod";
+import {FacebookMethod} from "@/components/login/FacebookMethod";
+import {MicrosoftMethod} from "@/components/login/MicrosoftMethod";
+import {PasskeyMethod} from "@/components/login/PasskeyMethod";
+import {PasswordMethod} from "@/components/login/PasswordMethod";
 
-export const LoginForm = () => {
-    const [email, setEmail] = useState<string>('');
+type Props = {
+    setEmailError?: (error: string) => void;
+}
+
+export const LoginForm = (props: Props) => {
     const [loginMethods, setLoginMethods] = useState<string[]>([]);
     const [defaultMethod, setDefaultMethod] = useState<string>('');
-    const [error, setError] = useState('');
-    const [emailValidated, setEmailValidated] = useState(false);
-    const [loading, setLoading] = useState(false)
+    const [selectedMethod, setSelectedMethod] = useState<string>('');
+    const [emailValidated, setEmailValidated] = useState<boolean>(false);
+    const [otherOptionsOpened, setOtherOptionsOpened] = useState<boolean>(false);
+
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const email = searchParams.get('email') || '';
+
+    const otherOptions = useMemo(
+        () => loginMethods.filter(method => method !== selectedMethod),
+        [loginMethods, selectedMethod]
+    );
+
+    const SelectedComponent = useMemo(() => {
+        switch (selectedMethod) {
+            case 'passkey':
+                return <PasskeyMethod usage={'default'} email={email}/>
+            case 'google':
+                return <GoogleMethod usage={'default'} email={email}/>
+            case 'microsoft':
+                return <MicrosoftMethod usage={'default'} email={email}/>
+            case 'facebook':
+                return <FacebookMethod usage={'default'}/>
+            default:
+                return <PasswordMethod email={email}/>
+        }
+    }, [email, selectedMethod]);
+
+    useEffect(() => {
+        setSelectedMethod(defaultMethod);
+    }, [defaultMethod]);
 
     const checkEmail = useCallback((email: string) => {
-        setLoading(true);
         getEmailAuthMethods(email).then((data) => {
             const methods = data.socialAccounts
             if (data.isPasskeyAvailable) methods.push('passkey');
@@ -24,89 +57,81 @@ export const LoginForm = () => {
             setDefaultMethod(data.defaultMethod);
             setEmailValidated(true);
         }).catch(({status, reason}) => {
-            if (status === 400) setError(reason);
-            setEmailValidated(false);
-        }).finally(() => setLoading(false));
+            if (status === 400 && props.setEmailError) {
+                props.setEmailError(reason.email);
+                setTimeout(() => {
+                    if (props.setEmailError) props.setEmailError('');
+                }, 3000);
+            }
+            if (status === 403) {
+                router.replace(`/auth?email=${email}&mode=register`);
+            }
+        })
+    }, [props, router]);
+
+    useEffect(() => {
+        if (email) checkEmail(email);
+        else router.push('/auth');
     }, []);
 
-    const removeEmail = useCallback(() => {
-        setEmail('');
-        setEmailValidated(false);
-        setLoginMethods([]);
-        setDefaultMethod('');
-        setError('');
+    useEffect(() => {
+        setSelectedMethod(defaultMethod);
     }, []);
 
-    const isValidEmail = useMemo(() => {
-        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-        return emailRegex.test(email);
-    }, [email]);
-
-    const changeEmail = useCallback((value: string) => {
-        if (error) setError('');
-        setEmail(value.toLowerCase());
-    }, [error]);
+    if (!emailValidated) return <></>;
 
     return (
         <>
-            <div className={'relative'}>
-                <label htmlFor="email">Email</label>
-                <input
-                    autoComplete={'email'}
-                    name="email"
-                    type={'email'}
-                    value={email}
-                    readOnly={emailValidated}
-                    onChange={(e) => changeEmail(e.target.value)}
-                    className={`w-full mt-1 outline-none border rounded px-2 py-2 ${emailValidated ? 'cursor-default border-gray-300 border-2 bg-gray-50 pr-8' : 'cursor-text'}`}
-                />
-                {emailValidated && (
-                    <button className={'absolute bottom-3 right-2'} onClick={() => removeEmail()}>
-                        <EditIcon fill="#e5e7eb" width={'18'} height={'18'} style={{width: '18px', height: '18px'}}/>
-                    </button>
-                )}
-            </div>
-            <div>
-                {error && (<span className={'text-red-600 text-xs font-semibold'}>{error}</span>)}
-            </div>
-            {
-                (!emailValidated) &&
+            {SelectedComponent}
+            {loginMethods.length > 0 &&
                 <button
-                    onClick={() => checkEmail(email)}
-                    className={'flex flex-row gap-2 justify-center items-center mt-2 bg-gray-700 drop-shadow-sm disabled:hover:bg-gray-700 hover:bg-gray-600 text-gray-200 border min-h-9 w-full rounded-md py-2 disabled:opacity-50'}
-                    disabled={loading || !isValidEmail}
-                >
-                    {loading ?
-                        <ButtonLoader fill={'#FFFFFF'} width={'1.5rem'} height={'1.5rem'}/> :
-                        <>
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="#e5e7eb" width="20px" height="20px"
-                                 viewBox="0 0 32 32"
-                                 style={{
-                                     fillRule: 'evenodd',
-                                     clipRule: 'evenodd',
-                                     strokeLinejoin: 'round',
-                                     strokeMiterlimit: 2
-                                 }}
-                                 version="1.1">
-                                <path
-                                    d="M31,10c0,-1.326 -0.527,-2.598 -1.464,-3.536c-0.938,-0.937 -2.21,-1.464 -3.536,-1.464c-5.322,0 -14.678,0 -20,0c-1.326,-0 -2.598,0.527 -3.536,1.464c-0.937,0.938 -1.464,2.21 -1.464,3.536c0,3.486 0,8.514 0,12c-0,1.326 0.527,2.598 1.464,3.536c0.938,0.937 2.21,1.464 3.536,1.464c5.322,-0 14.678,-0 20,-0c1.326,0 2.598,-0.527 3.536,-1.464c0.937,-0.938 1.464,-2.21 1.464,-3.536c0,-3.486 0,-8.514 0,-12Zm-26.556,-0.221c-0,-0 5.145,4.237 8.372,6.894c1.849,1.523 4.519,1.52 6.365,-0.007c3.237,-2.677 8.413,-6.959 8.413,-6.959c0.425,-0.352 0.485,-0.983 0.133,-1.408c-0.351,-0.425 -0.982,-0.485 -1.408,-0.133c0,-0 -5.176,4.281 -8.412,6.959c-1.108,0.916 -2.71,0.918 -3.82,0.004c0,0 -8.372,-6.894 -8.372,-6.894c-0.426,-0.351 -1.056,-0.29 -1.407,0.136c-0.351,0.426 -0.29,1.057 0.136,1.408Z"/>
-                                <g id="Icon"/>
-                            </svg>
-                            <span className={'font-semibold'}>Continue with email</span>
-                        </>
-                    }
-                </button>
-            }
-            {
-                (emailValidated) ?
-                    <LoginMethods
-                        email={email}
-                        loginMethods={loginMethods}
-                        defaultMethod={defaultMethod}
-                        setEmailError={setError}
+                    className={'mt-2 bg-gray-100 w-full py-2 rounded-md text-gray-700 flex flex-row justify-center transition-all'}
+                    onClick={() => setOtherOptionsOpened(prevState => !prevState)}>
+                    <ArrowDropDownIcon
+                        className={(otherOptionsOpened ? 'rotate-180' : 'rotate-0') + ' transition-all transition-300'}
                     />
-                    :
-                    <LoginFunctions/>
+                    <span className={'font-semibold text-gray-600'}>Other options</span>
+                </button
+                >
+            }
+            {otherOptionsOpened &&
+                <div className={'w-full h-fit  transition-all duration-300 p-1 border mt-2 rounded-lg'}>
+                    {otherOptions.map(method => {
+                        switch (method) {
+                            case 'google':
+                                return <GoogleMethod key={method} usage={'option'} email={email}/>
+                            case 'facebook':
+                                return <FacebookMethod key={method} usage={'option'}/>;
+                            case 'microsoft':
+                                return <MicrosoftMethod key={method} usage={'option'}/>;
+                            case 'password':
+                                return <button
+                                    onClick={() => setSelectedMethod('password')}
+                                    className={'flex flex-row justify-start gap-5 hover:bg-gray-200 w-full items-center rounded-md p-1'}
+                                    key={method}
+                                >
+                                    <div className={'bg-gray-700 rounded p-2'}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px"
+                                             viewBox="0 0 24 24" fill="none">
+                                            <path d="M12 10V14M10.2676 11L13.7317 13M13.7314 11L10.2673 13"
+                                                  stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round"/>
+                                            <path d="M6.73241 10V14M4.99999 11L8.46409 13M8.46386 11L4.99976 13"
+                                                  stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round"/>
+                                            <path d="M17.2681 10V14M15.5356 11L18.9997 13M18.9995 11L15.5354 13"
+                                                  stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round"/>
+                                            <path
+                                                d="M22 12C22 15.7712 22 17.6569 20.8284 18.8284C19.6569 20 17.7712 20 14 20H10C6.22876 20 4.34315 20 3.17157 18.8284C2 17.6569 2 15.7712 2 12C2 8.22876 2 6.34315 3.17157 5.17157C4.34315 4 6.22876 4 10 4H14C17.7712 4 19.6569 4 20.8284 5.17157C21.4816 5.82475 21.7706 6.69989 21.8985 8"
+                                                stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round"/>
+                                        </svg>
+                                    </div>
+                                    <span className={'text-gray-700 font-semibold'}>Login with Password</span>
+                                </button>
+                            default:
+                                return <PasskeyMethod usage={'option'} email={email} key={method}/>;
+                        }
+                    })
+                    }
+                </div>
             }
         </>
     );

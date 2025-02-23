@@ -1,4 +1,4 @@
-import {useCallback, useMemo, useRef, useState} from 'react';
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Visibility, VisibilityOff} from "@mui/icons-material";
 import {authWithPassword} from "@/lib/api/auths";
 import {ButtonLoader} from "@/components";
@@ -51,38 +51,52 @@ export const PasswordMethod = (props: Props) => {
                 }
             ).finally(() => setLoading(false));
     }, [props, passwordVal, router]);
+
     const changePassword = useCallback((password: string) => {
+        if (loading) return;
         if (error) setError('');
         setPasswordVal(password);
-    }, [error]);
+    }, [error, loading]);
+
+    useEffect(() => {
+        if (passwordField.current) passwordField.current.focus();
+    }, []);
 
     return (
-        <div className={'w-full'}>
+        <form className={'w-full'} onSubmit={(event) => {
+            event.preventDefault();
+            if (!passwordVal || loading) return;
+            login();
+        }}>
             <div className={'mt-3 relative'}>
                 <label htmlFor="password">Password</label>
                 <input
                     name={'password'}
                     type={passwordVisible ? 'text' : 'password'}
                     className={'mt-2 outline-none rounded-md border w-full py-2 pl-2 pr-8'}
-                    onChange={e => changePassword(e.target.value)} ref={passwordField}
+                    onChange={e => changePassword(e.target.value)}
+                    ref={passwordField}
                     autoComplete={'current-password'}
+                    placeholder={'Enter your password'}
+                    readOnly={loading}
                 />
                 <div className={'absolute bottom-2 right-2'}>
                     {passwordVisibilityIcon}
                 </div>
             </div>
             {error && (<span className={'text-red-600 text-xs font-semibold'}>{error}</span>)}
-            <p className={'text-xs font-semibold mb-3 mt-1.5 text-end'}>Forgot your password? <Link href={'/(no-login)/reset-password/'} className={'text-blue-600'}>Reset here</Link></p>
+            <p className={'text-xs font-semibold mb-3 mt-1.5 text-end'}>Forgot your password? <Link
+                href={'/(no-login)/reset-password/'} className={'text-blue-600'}>Reset here</Link></p>
             <button
                 className={'mt-2 px-1 py-2 bg-gray-700 text-gray-200 w-full rounded-md font-semibold flex flex-row justify-center items-center disabled:opacity-50'}
-                onClick={login}
-                disabled={loading}
+                disabled={loading || !passwordVal}
+                type={'submit'}
             >
                 {loading ?
                     <ButtonLoader fill={'#FFFFFF'} width={'1.5rem'} height={'1.5rem'}/> :
                     <span>Login with Password</span>
                 }
             </button>
-        </div>
+        </form>
     );
 };

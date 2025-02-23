@@ -15,10 +15,10 @@ const getEmailAuthMethods = async (email: string) => {
         return result.data
     } catch (error) {
         if (isAxiosError(error)) {
-            if (error.response?.status === 400) {
+            if ([400, 403].includes(error.response?.status || 0)) {
                 return Promise.reject({
-                    status: error.status,
-                    reason: error.response?.data.email[0]
+                    status: error.response?.status,
+                    reason: error.response?.data
                 })
             }
         }

@@ -1,3 +1,4 @@
+'use client';
 import {FacebookMethod} from "@/components/login/FacebookMethod";
 import {MicrosoftMethod} from "@/components/login/MicrosoftMethod";
 import {GoogleMethod} from "@/components/login/GoogleMethod";
