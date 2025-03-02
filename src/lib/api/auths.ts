@@ -3,6 +3,7 @@ import {AxiosResponse, isAxiosError} from "axios";
 import {RegisterPasskeyBeginData} from "@/types/RegisterPasskeyBeginData";
 import {PasskeyRegisterResponseData} from "@/types/PasskeyRegisterResponseData";
 import {AuthTokens} from "@/types/AuthTokens";
+import {RegisterPasswordData} from "@/types/RegisterPasswordData";
 
 const storeCreds = (access: string, refresh: string) => {
     localStorage.setItem('access', access);
@@ -203,30 +204,10 @@ const verifyAuthenticatorAppOTP = async (otp: string) => {
     }
 }
 
-const beginPasskeyRegistration = async () => {
-    return publicInstance.get(
-        '/auth/b-passkey-registration/',
-    )
-}
-
-const endPasskeyRegistration = async (publicKeyCredential: {
-    id: string,
-    rawId: string,
-    type: string,
-    response: any
-}) => {
-    return publicInstance.post(
-        '/auth/c-passkey-register/',
-        publicKeyCredential,
-        {
-            withCredentials: true,
-        }
-    )
-}
 
 const beginPasskeyAuthentication = (email?: string) => {
     return publicInstance.get(
-        '/auth/passkey/b-passkey-authentication/',
+        '/auth/login/begin-passkey/',
         {
             params: {
                 email,
@@ -238,7 +219,7 @@ const beginPasskeyAuthentication = (email?: string) => {
 const endPasskeyAuthentication = async (data: any) => {
     try {
         const response = await publicInstance.post(
-            '/auth/passkey/c-passkey-authentication/',
+            '/auth/login/complete-passkey/',
             data
         )
         if (response.status === 206) {
@@ -458,11 +439,11 @@ const recoverAccount = async (code: string) => {
     }
 }
 
-const registerWithPassword = async (email: string, password: string | File, repeatPassword: string | File) => {
+const registerWithPassword = async (data: RegisterPasswordData) => {
     try {
         const response = await publicInstance.post(
             '/auth/register/password/',
-            {email, password, confirmPassword: repeatPassword}
+            data
         )
         return response.data
     } catch (error) {
@@ -533,8 +514,6 @@ const completeRegisterWithPasskey = async (data: any) =>  {
 export {
     getEmailAuthMethods,
     authWithPassword,
-    beginPasskeyRegistration,
-    endPasskeyRegistration,
     beginPasskeyAuthentication,
     endPasskeyAuthentication,
     googleSocialLogin,

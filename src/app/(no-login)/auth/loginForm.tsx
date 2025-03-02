@@ -79,7 +79,7 @@ export const LoginForm = (props: Props) => {
     return (
         <>
             {SelectedComponent}
-            {loginMethods.length > 0 &&
+            {otherOptions.length > 0 &&
                 <button
                     className={'mt-2 bg-gray-100 w-full py-2 rounded-md text-gray-700 flex flex-row justify-center transition-all'}
                     onClick={() => setOtherOptionsOpened(prevState => !prevState)}>
@@ -89,7 +89,7 @@ export const LoginForm = (props: Props) => {
                     <span className={'font-semibold text-gray-600'}>Other options</span>
                 </button>
             }
-            {otherOptionsOpened &&
+            {otherOptionsOpened && otherOptions.length > 0 &&
                 <div className={'w-full h-fit  transition-all duration-300 p-1 border mt-2 rounded-lg'}>
                     {otherOptions.map(method => {
                         switch (method) {

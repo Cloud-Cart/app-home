@@ -5,6 +5,7 @@ import {FormEvent, useCallback, useEffect, useMemo, useRef, useState} from "reac
 import {completeRegisterWithPasskey, registerWithPasskey, registerWithPassword} from "@/lib/api/auths";
 import {browserSupportsWebAuthn, platformAuthenticatorIsAvailable, startRegistration} from "@simplewebauthn/browser";
 import {RegisterPasskeyBeginData} from "@/types/RegisterPasskeyBeginData";
+import {RegisterPasswordData} from "@/types/RegisterPasswordData";
 
 
 export const RegisterForm = () => {
@@ -14,6 +15,8 @@ export const RegisterForm = () => {
     const [isAuthDataReady, setIsAuthDataReady] = useState(false);
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const userId = useRef<string>(null);
 
     const searchParams = useSearchParams();
@@ -75,20 +78,21 @@ export const RegisterForm = () => {
                     .catch()
 
             } else {
-                const form = event.currentTarget as HTMLFormElement;
-                const formData = new FormData(form);
-
-                const password = formData.get('password') || '';
-                const repeatPassword = formData.get('repeatPassword') || '';
-                console.log(password, repeatPassword);
-                registerWithPassword(email, password, repeatPassword).then(r => {
+                const data: RegisterPasswordData = {
+                    email,
+                    password,
+                    firstName,
+                    lastName,
+                    confirmPassword
+                }
+                registerWithPassword(data).then(r => {
                     console.log(r);
                 });
             }
             setLoading(true);
             setLoading(false);
         },
-        [email, isDataReady, loading, selectedMethod]
+        [confirmPassword, email, firstName, isDataReady, lastName, loading, password, selectedMethod]
     );
 
     return (
@@ -135,6 +139,8 @@ export const RegisterForm = () => {
                         isDataValid={isDataReady}
                         setIsDataReady={setIsAuthDataReady}
                         loading={loading}
+                        setPassword={setPassword}
+                        setRepeatPassword={setConfirmPassword}
                     />
             }
             {

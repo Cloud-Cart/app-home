@@ -5,7 +5,8 @@ type Props = {
     setIsDataReady: (isDataReady: boolean) => void;
     isDataValid: boolean;
     loading: boolean;
-
+    setPassword?: (password: string) => void;
+    setRepeatPassword?: (password: string) => void;
 }
 
 export const PasswordMethod = (props: Props) => {
@@ -20,6 +21,14 @@ export const PasswordMethod = (props: Props) => {
     useEffect(() => {
         props.setIsDataReady(isPasswordValid && isPasswordSame);
     }, [isPasswordSame, isPasswordValid, props]);
+
+    useEffect(() => {
+        if (props.setPassword) props.setPassword(passwordValue);
+    }, [passwordValue, props]);
+
+    useEffect(() => {
+        if (props.setRepeatPassword) props.setRepeatPassword(repeatPasswordValue);
+    }, [repeatPasswordValue, props]);
 
     return (
         <>
