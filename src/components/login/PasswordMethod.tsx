@@ -4,7 +4,7 @@ import {ButtonLoader} from "@/components";
 import {useRouter} from "next/navigation";
 import Link from "next/link";
 import {PasswordField} from "@/components/general/PasswordField";
-import {PasswordAuthData} from "@/types/PasswordAuthData";
+import {PasswordAuthData} from "@/types";
 
 type Props = {
     email: string;

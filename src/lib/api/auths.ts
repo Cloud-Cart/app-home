@@ -1,15 +1,18 @@
 import publicInstance from "@/lib/api/instance";
 import {AxiosResponse, isAxiosError} from "axios";
-import {PasskeyRegBeginData} from "@/types/PasskeyRegBeginData";
-import {PasskeyRegBeginResponse} from "@/types/PasskeyRegBeginResponse";
-import {AuthTokens} from "@/types/AuthTokens";
-import {RegisterPasswordData} from "@/types/RegisterPasswordData";
-import {PasskeyRegCompleteData} from "@/types/PasskeyRegCompleteData";
-import {SocialLoginData} from "@/types/SocialLoginData";
-import {PasswordAuthData} from "@/types/PasswordAuthData";
-import {PasskeyAuthBeginData} from "@/types/PasskeyAuthBeginData";
-import {PasskeyAuthBeginResponse} from "@/types/PasskeyAuthBeginResponse";
-import {PasskeyAuthCompleteData} from "@/types/PasskeyAuthCompleteData";
+import {
+    AuthTokens,
+    PasskeyAuthBeginData,
+    PasskeyAuthBeginResponse,
+    PasskeyAuthCompleteData,
+    PasskeyRegBeginData,
+    PasskeyRegBeginResponse,
+    PasskeyRegCompleteData,
+    PasswordAuthData,
+    RegisterPasswordData,
+    SocialLoginData
+} from "@/types";
+
 
 const storeCreds = (access: string, refresh: string) => {
     localStorage.setItem('access', access);
@@ -212,14 +215,13 @@ const verifyAuthenticatorAppOTP = async (otp: string) => {
 
 
 const beginPasskeyAuthentication = async (data: PasskeyAuthBeginData) => {
-    try{
+    try {
         const response: AxiosResponse<PasskeyAuthBeginResponse> = await publicInstance.post(
             '/auth/login/begin-passkey/',
             data
         )
         return response.data
-    }
-    catch (error) {
+    } catch (error) {
         if (isAxiosError(error)) {
             if (error.response?.status === 400)
                 return Promise.reject({

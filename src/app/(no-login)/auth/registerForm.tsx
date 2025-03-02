@@ -4,9 +4,7 @@ import {PasskeyRegister, PasswordRegister} from "@/components";
 import {FormEvent, useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {completeRegisterWithPasskey, registerWithPasskey, registerWithPassword} from "@/lib/api/auths";
 import {browserSupportsWebAuthn, platformAuthenticatorIsAvailable, startRegistration} from "@simplewebauthn/browser";
-import {PasskeyRegBeginData} from "@/types/PasskeyRegBeginData";
-import {RegisterPasswordData} from "@/types/RegisterPasswordData";
-import {PasskeyRegCompleteData} from "@/types/PasskeyRegCompleteData";
+import {PasskeyRegBeginData, PasskeyRegCompleteData, RegisterPasswordData} from "@/types";
 
 
 export const RegisterForm = () => {

@@ -3,7 +3,7 @@ import {useCallback, useState} from "react";
 import {ButtonLoader, SpinnerLoader} from "@/components";
 import {microsoftSocialLogin} from "@/lib/api/auths";
 import {useRouter} from "next/navigation";
-import {SocialLoginData} from "@/types/SocialLoginData";
+import {SocialLoginData} from "@/types";
 
 type Props = {
     usage: 'default' | 'option' | 'button',
