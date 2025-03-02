@@ -65,7 +65,7 @@ export const GoogleMethod = (props: Props) => {
                 setLoading(false);
             }
         }, 1000);
-    }, [props.email]);
+    }, [props.email, router]);
 
 
     if (props.usage === 'default') {

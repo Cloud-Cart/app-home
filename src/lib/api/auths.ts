@@ -7,7 +7,6 @@ import {RegisterPasswordData} from "@/types/RegisterPasswordData";
 import {PasskeyRegCompleteData} from "@/types/PasskeyRegCompleteData";
 import {SocialLoginData} from "@/types/SocialLoginData";
 import {PasswordAuthData} from "@/types/PasswordAuthData";
-import {AuthenticationResponseJSON} from "@simplewebauthn/browser";
 import {PasskeyAuthBeginData} from "@/types/PasskeyAuthBeginData";
 import {PasskeyAuthBeginResponse} from "@/types/PasskeyAuthBeginResponse";
 import {PasskeyAuthCompleteData} from "@/types/PasskeyAuthCompleteData";
