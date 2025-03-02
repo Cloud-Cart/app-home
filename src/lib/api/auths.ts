@@ -216,9 +216,9 @@ const verifyAuthenticatorAppOTP = async (otp: string) => {
 
 const beginPasskeyAuthentication = async (data: PasskeyAuthBeginData) => {
     try {
-        const response: AxiosResponse<PasskeyAuthBeginResponse> = await publicInstance.post(
+        const response: AxiosResponse<PasskeyAuthBeginResponse> = await publicInstance.get(
             '/auth/login/begin-passkey/',
-            data
+            {params: data}
         )
         return response.data
     } catch (error) {
