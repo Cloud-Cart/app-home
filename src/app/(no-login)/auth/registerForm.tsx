@@ -4,8 +4,9 @@ import {PasskeyRegister, PasswordRegister} from "@/components";
 import {FormEvent, useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {completeRegisterWithPasskey, registerWithPasskey, registerWithPassword} from "@/lib/api/auths";
 import {browserSupportsWebAuthn, platformAuthenticatorIsAvailable, startRegistration} from "@simplewebauthn/browser";
-import {RegisterPasskeyBeginData} from "@/types/RegisterPasskeyBeginData";
+import {PasskeyRegBeginData} from "@/types/PasskeyRegBeginData";
 import {RegisterPasswordData} from "@/types/RegisterPasswordData";
+import {PasskeyRegCompleteData} from "@/types/PasskeyRegCompleteData";
 
 
 export const RegisterForm = () => {
@@ -55,7 +56,7 @@ export const RegisterForm = () => {
             if (loading && !isDataReady) return;
             setLoading(true);
             if (selectedMethod === 'passkey') {
-                const data: RegisterPasskeyBeginData = {
+                const data: PasskeyRegBeginData = {
                     firstName,
                     lastName,
                     email,
@@ -67,11 +68,15 @@ export const RegisterForm = () => {
                         userId.current = res.userId;
                         startRegistration({optionsJSON: res.options}).then(
                             (response) => {
-                                const data = {
+                                const data: PasskeyRegCompleteData = {
                                     response: response,
                                     userId: res.userId
                                 }
-                                completeRegisterWithPasskey(data).then(console.log)
+                                completeRegisterWithPasskey(data).then(
+                                    data => {
+                                        console.log(data);
+                                    }
+                                )
                             }
                         )
                     })
@@ -85,9 +90,10 @@ export const RegisterForm = () => {
                     lastName,
                     confirmPassword
                 }
-                registerWithPassword(data).then(r => {
-                    console.log(r);
-                });
+                registerWithPassword(data)
+                    .then(r => {
+                        console.log(r);
+                    });
             }
             setLoading(true);
             setLoading(false);

@@ -1,6 +1,6 @@
 import {beginPasskeyAuthentication, endPasskeyAuthentication} from "@/lib/api/auths";
 import * as React from "react";
-import {useCallback, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {ButtonLoader, SpinnerLoader} from "@/components";
 import {startAuthentication} from "@simplewebauthn/browser";
 
@@ -12,18 +12,47 @@ type Props = {
 export const PasskeyMethod = (props: Props) => {
     const [loading, setLoading] = useState(false);
 
+    useEffect(() => {
+        if (props.usage === 'button') {
+            beginPasskeyAuthentication({})
+                .then(
+                    data => {
+                        const options = data.options
+                        startAuthentication({optionsJSON: options, useBrowserAutofill: true})
+                            .then(response => {
+                                const data = {response}
+                                endPasskeyAuthentication(data)
+                                    .then(data => {
+                                        console.log(data)
+                                    })
+                            })
+                            .catch(error => {
+                                if (error instanceof AbortSignal) return;
+                            })
+
+                    }
+                )
+                .catch(({status, reason}) => {
+                    if (status === 400) {
+                        console.log(reason)
+                    }
+                })
+
+        }
+    }, [props.usage]);
+
     const login = useCallback(() => {
         setLoading(true);
-        beginPasskeyAuthentication(props.email)
+        beginPasskeyAuthentication({email: props.email})
             .then(
-                res => {
-                    const options = res.data.options
+                data => {
+                    const options = data.options
                     startAuthentication({optionsJSON: options})
                         .then(response => {
                             const data = {response}
                             endPasskeyAuthentication(data)
-                                .then(r => {
-                                    console.log(r.data)
+                                .then(data => {
+                                    console.log(data)
                                 })
                                 .finally(() => {
                                     setLoading(false)

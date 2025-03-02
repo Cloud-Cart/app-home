@@ -5,6 +5,8 @@ import {useRouter, useSearchParams} from "next/navigation";
 import {useCallback, useEffect, useMemo, useState} from "react";
 import {LoginForm} from "@/app/(no-login)/auth/loginForm";
 import {RegisterForm} from "@/app/(no-login)/auth/registerForm";
+import {beginPasskeyAuthentication, endPasskeyAuthentication} from "@/lib/api/auths";
+import {startAuthentication} from "@simplewebauthn/browser";
 
 
 export default function Page() {

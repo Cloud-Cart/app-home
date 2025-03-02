@@ -1,7 +1,6 @@
-export type RegisterPasswordData = {
-    email: string;
-    firstName: string;
-    lastName: string;
+import {RegisterData} from "@/types/RegisterData";
+
+export interface RegisterPasswordData extends RegisterData {
     password: string;
     confirmPassword: string;
 }

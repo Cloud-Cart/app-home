@@ -1,6 +1,6 @@
 import { PublicKeyCredentialCreationOptionsJSON } from '@simplewebauthn/browser';
 
-export type PasskeyRegisterResponseData = {
+export type PasskeyRegBeginResponse = {
     userId: string;
     email: string;
     firstName: string;

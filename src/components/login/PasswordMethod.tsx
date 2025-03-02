@@ -4,6 +4,7 @@ import {ButtonLoader} from "@/components";
 import {useRouter} from "next/navigation";
 import Link from "next/link";
 import {PasswordField} from "@/components/general/PasswordField";
+import {PasswordAuthData} from "@/types/PasswordAuthData";
 
 type Props = {
     email: string;
@@ -19,10 +20,11 @@ export const PasswordMethod = (props: Props) => {
 
     const login = useCallback(() => {
         setLoading(true);
-        authWithPassword(
-            props.email,
-            passwordVal,
-        )
+        const data: PasswordAuthData = {
+            email: props.email,
+            password: passwordVal
+        }
+        authWithPassword(data)
             .then(() => {
 
             })
