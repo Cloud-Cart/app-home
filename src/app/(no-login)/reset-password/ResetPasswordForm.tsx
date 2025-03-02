@@ -20,7 +20,6 @@ export const ResetPasswordForm = () => {
         setLoading(true);
         sendResetPasswordEmail(email).then(() => {
             setEmailSended(true);
-            console.log('email sent')
         }).catch(({status, data}) => {
             if (status === 400) {
                 setError(data.email);
@@ -36,7 +35,7 @@ export const ResetPasswordForm = () => {
                         <p className={'w-full p-4 text-justify'}>Success! We&#39;ve sent a password reset link to your
                             email. Please check your inbox and follow the
                             instructions to reset your password.</p>
-                        <Link href={'/(no-login)/auth/'}>
+                        <Link href={`/auth/?email=${email}&mode=login`}>
                             <button className={'w-full bg-gray-700 text-gray-200 p-2 rounded-md font-semibold shadow'}>
                                 Go back to login
                             </button>

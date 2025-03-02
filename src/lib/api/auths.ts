@@ -1,5 +1,8 @@
 import publicInstance from "@/lib/api/instance";
-import {isAxiosError} from "axios";
+import {AxiosResponse, isAxiosError} from "axios";
+import {RegisterPasskeyBeginData} from "@/types/RegisterPasskeyBeginData";
+import {PasskeyRegisterResponseData} from "@/types/PasskeyRegisterResponseData";
+import {AuthTokens} from "@/types/AuthTokens";
 
 const storeCreds = (access: string, refresh: string) => {
     localStorage.setItem('access', access);
@@ -455,6 +458,78 @@ const recoverAccount = async (code: string) => {
     }
 }
 
+const registerWithPassword = async (email: string, password: string | File, repeatPassword: string | File) => {
+    try {
+        const response = await publicInstance.post(
+            '/auth/register/password/',
+            {email, password, confirmPassword: repeatPassword}
+        )
+        return response.data
+    } catch (error) {
+        if (isAxiosError(error)) {
+            if (error.response?.status === 400) {
+                return Promise.reject({
+                    status: 400,
+                    reason: 'Bad Request',
+                    data: error.response?.data
+                })
+            }
+        }
+        return Promise.reject({
+            status: 500,
+            reason: 'Internal Server Error'
+        })
+    }
+}
+
+const registerWithPasskey = async (data: RegisterPasskeyBeginData) =>  {
+    try {
+        const response: AxiosResponse<PasskeyRegisterResponseData> = await publicInstance.post(
+            '/auth/register/begin-passkey/',
+            data
+        )
+        return response.data
+    } catch (error) {
+        if (isAxiosError(error)) {
+            if (error.response?.status === 400) {
+                return Promise.reject({
+                    status: 400,
+                    reason: 'Bad Request',
+                    data: error.response?.data
+                })
+            }
+        }
+        return Promise.reject({
+            status: 500,
+            reason: 'Internal Server Error'
+        })
+    }
+}
+
+const completeRegisterWithPasskey = async (data: any) =>  {
+    try {
+        const response: AxiosResponse<AuthTokens> = await publicInstance.post(
+            '/auth/register/complete-passkey/',
+            data
+        )
+        return response.data
+    } catch (error) {
+        if (isAxiosError(error)) {
+            if (error.response?.status === 400) {
+                return Promise.reject({
+                    status: 400,
+                    reason: 'Bad Request',
+                    data: error.response?.data
+                })
+            }
+        }
+        return Promise.reject({
+            status: 500,
+            reason: 'Internal Server Error'
+        })
+    }
+}
+
 export {
     getEmailAuthMethods,
     authWithPassword,
@@ -472,5 +547,8 @@ export {
     sendResetPasswordEmail,
     verifyResetPasswordChallenge,
     setResetPassword,
-    recoverAccount
+    recoverAccount,
+    registerWithPassword,
+    registerWithPasskey,
+    completeRegisterWithPasskey
 }

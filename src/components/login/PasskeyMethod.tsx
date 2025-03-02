@@ -101,7 +101,7 @@ export const PasskeyMethod = (props: Props) => {
         }).catch(() => {
             setLoading(false)
         })
-    }, [props.email])
+    }, [props.email, router])
 
     if (props.usage === 'default') {
         return <button
