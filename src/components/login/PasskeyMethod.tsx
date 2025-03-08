@@ -1,8 +1,8 @@
 import {beginPasskeyAuthentication, endPasskeyAuthentication} from "@/lib/api/auths";
 import * as React from "react";
-import {useCallback, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {ButtonLoader, SpinnerLoader} from "@/components";
-import {useRouter} from "next/navigation";
+import {startAuthentication} from "@simplewebauthn/browser";
 
 type Props = {
     email?: string;
@@ -11,96 +11,63 @@ type Props = {
 
 export const PasskeyMethod = (props: Props) => {
     const [loading, setLoading] = useState(false);
-    const router = useRouter();
 
-    //
-    // const registerPasskey = () => {
-    //     beginPasskeyRegistration().then(res => {
-    //         const options = JSON.parse(res.data)
-    //
-    //         options.user.id = Uint8Array.from(atob(options.user.id), c => c.charCodeAt(0));
-    //         const base64Url = options.challenge.replace(/_/g, '/').replace(/-/g, '+');  // Replace URL-safe Base64 chars
-    //         options.challenge = Uint8Array.from(atob(base64Url), c => c.charCodeAt(0));
-    //         options.excludeCredentials = options.excludeCredentials.map(cred => {
-    //             const base64Url = cred.id.replace(/_/g, '/').replace(/-/g, '+');  // Replace URL-safe Base64 chars
-    //             const id = Uint8Array.from(atob(base64Url), c => c.charCodeAt(0)).buffer;
-    //             return {
-    //                 ...cred,
-    //                 id,
-    //             }
-    //         })
-    //
-    //         navigator.credentials.create({
-    //             publicKey: options
-    //         }).then(credential => {
-    //             console.log('register id', credential.id);
-    //             const publicKeyCredential = {
-    //                 id: credential.id,
-    //                 rawId: btoa(String.fromCharCode(...new Uint8Array(credential.rawId))),
-    //                 type: credential.type,
-    //                 response: {
-    //                     clientDataJSON: btoa(String.fromCharCode(...new Uint8Array(credential.response.clientDataJSON))),
-    //                     attestationObject: btoa(String.fromCharCode(...new Uint8Array(credential.response.attestationObject))),
-    //                 }
-    //             };
-    //             endPasskeyRegistration(publicKeyCredential).then(console.log)
-    //         })
-    //             .catch(console.error);
-    //     });
-    // }
+    useEffect(() => {
+        if (props.usage === 'button') {
+            beginPasskeyAuthentication({})
+                .then(
+                    data => {
+                        const options = data.options
+                        startAuthentication({optionsJSON: options, useBrowserAutofill: true})
+                            .then(response => {
+                                const data = {response}
+                                endPasskeyAuthentication(data)
+                                    .then(data => {
+                                        console.log(data)
+                                    })
+                            })
+                            .catch(error => {
+                                if (error instanceof AbortSignal) return;
+                            })
+
+                    }
+                )
+                .catch(({status, reason}) => {
+                    if (status === 400) {
+                        console.log(reason)
+                    }
+                })
+
+        }
+    }, [props.usage]);
 
     const login = useCallback(() => {
         setLoading(true);
-        beginPasskeyAuthentication(props.email).then(res => {
-            const options = JSON.parse(res.data);
-            const base64Url = options.challenge.replace(/_/g, '/').replace(/-/g, '+');  // Replace URL-safe Base64 chars
-            options.challenge = Uint8Array.from(atob(base64Url), c => c.charCodeAt(0));
-            options.allowCredentials = options.allowCredentials.map((cred: { id: string, type: string }) => {
-                const base64Url = cred.id.replace(/_/g, '/').replace(/-/g, '+');  // Replace URL-safe Base64 chars
-                const id = Uint8Array.from(atob(base64Url), c => c.charCodeAt(0)).buffer;
-                return {
-                    ...cred,
-                    id,
+        beginPasskeyAuthentication({email: props.email})
+            .then(
+                data => {
+                    const options = data.options
+                    startAuthentication({optionsJSON: options})
+                        .then(response => {
+                            const data = {response}
+                            endPasskeyAuthentication(data)
+                                .then(data => {
+                                    console.log(data)
+                                })
+                                .finally(() => {
+                                    setLoading(false)
+                                })
+                        })
+                        .catch(() => {
+                            setLoading(false)
+                        })
+                }
+            )
+            .catch(({status, reason}) => {
+                if (status === 400) {
+                    console.log(reason)
                 }
             })
-            const abortController = new AbortController();
-
-            navigator.credentials.get({
-                publicKey: options,
-                signal: abortController.signal,
-                mediation: "optional"
-            }).then((credential) => {
-                if (credential == null) {
-                    return credential;
-                }
-                const publicKeyCredential = {
-                    id: credential.id,
-                    // @ts-expect-error publicKeyCredential.rawId is not null
-                    rawId: btoa(String.fromCharCode(...new Uint8Array(credential.rawId))),
-                    response: {
-                        // @ts-expect-error publicKeyCredential.response.clientDataJSON is not null
-                        clientDataJSON: btoa(String.fromCharCode(...new Uint8Array(credential.response.clientDataJSON))),
-                        // @ts-expect-error publicKeyCredential.response.authenticatorData is not null
-                        authenticatorData: btoa(String.fromCharCode(...new Uint8Array(credential.response.authenticatorData))),
-                        // @ts-expect-error publicKeyCredential.response.signature is not null
-                        signature: btoa(String.fromCharCode(...new Uint8Array(credential.response.signature))),
-                        // @ts-expect-error publicKeyCredential.response.userHandle is not null
-                        userHandle: btoa(String.fromCharCode(...new Uint8Array(credential.response.userHandle)),)
-                    },
-                    type: credential.type,
-                }
-                endPasskeyAuthentication(publicKeyCredential)
-                    .then(console.log)
-                    .catch(({status}) => {
-                        if (status === 206) {
-                            router.push('/auth/second-step/')
-                        }
-                    })
-            }).catch(() => {
-            }).finally(() => setLoading(false));
-        }).catch(() => {
-            setLoading(false)
-        })
     }, [props.email])
 
     if (props.usage === 'default') {

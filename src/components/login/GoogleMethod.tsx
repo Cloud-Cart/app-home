@@ -3,6 +3,7 @@ import {useCallback, useState} from "react";
 import {ButtonLoader, SpinnerLoader} from "@/components";
 import {googleSocialLogin} from "@/lib/api/auths";
 import {useRouter} from "next/navigation";
+import {SocialLoginData} from "@/types";
 
 type Props = {
     usage: 'default' | 'option' | 'button';
@@ -35,10 +36,14 @@ export const GoogleMethod = (props: Props) => {
 
         const handleMessage = (event: MessageEvent<{ code: string, provider: string }>) => {
             if (event.origin !== window.location.origin || !event.data.provider || event.data.provider !== 'google') return;
-            googleSocialLogin(event.data.code, REDIRECT_URI)
+            const data: SocialLoginData = {
+                code: event.data.code,
+                redirectUri: REDIRECT_URI
+            }
+            googleSocialLogin(data)
                 .then(
-                    (response) => {
-                        console.log("Google login response:", response.data);
+                    (data) => {
+                        console.log("Google login response:", data);
                     }
                 )
                 .catch(
@@ -60,7 +65,7 @@ export const GoogleMethod = (props: Props) => {
                 setLoading(false);
             }
         }, 1000);
-    }, [props.email]);
+    }, [props.email, router]);
 
 
     if (props.usage === 'default') {

@@ -1,4 +1,4 @@
-import CodeInput from "@/app/(auth)/second-step/CodeInput";
+import CodeInput from "@/app/(no-auth)/second-step/CodeInput";
 import {useCallback, useEffect, useState} from "react";
 import {sendSecondStepOTP, verifyEmailLoginOTP} from "@/lib/api/auths";
 import {ButtonLoader} from "@/components";

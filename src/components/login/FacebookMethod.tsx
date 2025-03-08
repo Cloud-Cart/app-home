@@ -3,6 +3,7 @@ import {useCallback, useState} from "react";
 import {ButtonLoader, SpinnerLoader} from "@/components";
 import {facebookSocialLogin} from "@/lib/api/auths";
 import {useRouter} from "next/navigation";
+import {SocialLoginData} from "@/types";
 
 type Props = {
     usage: 'default' | 'option' | 'button',
@@ -33,9 +34,13 @@ export const FacebookMethod = (props: Props) => {
 
         const handleMessage = (event: MessageEvent<{ code: string, provider: string }>) => {
             if (event.origin !== window.location.origin || !event.data.provider || event.data.provider !== 'facebook') return;
-            facebookSocialLogin(event.data.code, REDIRECT_URI)
-                .then(response => {
-                    console.log("Facebook login response:", response.data);
+            const data: SocialLoginData = {
+                code: event.data.code,
+                redirectUri: REDIRECT_URI
+            }
+            facebookSocialLogin(data)
+                .then(data => {
+                    console.log("Facebook login response:", data);
                 })
                 .catch(
                     ({status}) => {

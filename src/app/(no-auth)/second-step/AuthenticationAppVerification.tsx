@@ -1,13 +1,11 @@
-import CodeInput from "@/app/(auth)/second-step/CodeInput";
+import CodeInput from "@/app/(no-auth)/second-step/CodeInput";
 import {useCallback, useState} from "react";
 import {useRouter} from "next/navigation";
-import {verifyAuthenticatorAppOTP, verifyEmailLoginOTP} from "@/lib/api/auths";
+import {verifyAuthenticatorAppOTP} from "@/lib/api/auths";
 import {ButtonLoader} from "@/components";
 
-type Props = {};
 
-
-export const AuthenticationAppVerification = (props: Props) => {
+export const AuthenticationAppVerification = () => {
     const [code, setCode] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string>();

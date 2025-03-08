@@ -1,5 +1,19 @@
 import publicInstance from "@/lib/api/instance";
-import {isAxiosError} from "axios";
+import {AxiosResponse, isAxiosError} from "axios";
+import {
+    AuthTokens,
+    PasskeyAuthBeginData,
+    PasskeyAuthBeginResponse,
+    PasskeyAuthCompleteData,
+    PasskeyRegBeginData,
+    PasskeyRegBeginResponse,
+    PasskeyRegCompleteData,
+    PasswordAuthData,
+    RegisterPasswordData,
+    ResetPasswordEmailData,
+    SocialLoginData
+} from "@/types";
+
 
 const storeCreds = (access: string, refresh: string) => {
     localStorage.setItem('access', access);
@@ -15,10 +29,10 @@ const getEmailAuthMethods = async (email: string) => {
         return result.data
     } catch (error) {
         if (isAxiosError(error)) {
-            if (error.response?.status === 400) {
+            if ([400, 403].includes(error.response?.status || 0)) {
                 return Promise.reject({
-                    status: error.status,
-                    reason: error.response?.data.email[0]
+                    status: error.response?.status,
+                    reason: error.response?.data
                 })
             }
         }
@@ -29,11 +43,11 @@ const getEmailAuthMethods = async (email: string) => {
     }
 }
 
-const authWithPassword = async (email: string, password: string) => {
+const authWithPassword = async (data: PasswordAuthData) => {
     try {
-        const response = await publicInstance.post(
+        const response: AxiosResponse<AuthTokens> = await publicInstance.post(
             '/auth/login/password/',
-            {email, password}
+            data
         )
         if (response.status === 200)
             storeCreds(response.data.access, response.data.refresh)
@@ -200,42 +214,34 @@ const verifyAuthenticatorAppOTP = async (otp: string) => {
     }
 }
 
-const beginPasskeyRegistration = async () => {
-    return publicInstance.get(
-        '/auth/b-passkey-registration/',
-    )
-}
 
-const endPasskeyRegistration = async (publicKeyCredential: {
-    id: string,
-    rawId: string,
-    type: string,
-    response: any
-}) => {
-    return publicInstance.post(
-        '/auth/c-passkey-register/',
-        publicKeyCredential,
-        {
-            withCredentials: true,
-        }
-    )
-}
-
-const beginPasskeyAuthentication = (email?: string) => {
-    return publicInstance.get(
-        '/auth/passkey/b-passkey-authentication/',
-        {
-            params: {
-                email,
-            }
-        }
-    )
-}
-
-const endPasskeyAuthentication = async (data: any) => {
+const beginPasskeyAuthentication = async (data: PasskeyAuthBeginData) => {
     try {
-        const response = await publicInstance.post(
-            '/auth/passkey/c-passkey-authentication/',
+        const response: AxiosResponse<PasskeyAuthBeginResponse> = await publicInstance.get(
+            '/auth/login/begin-passkey/',
+            {params: data}
+        )
+        return response.data
+    } catch (error) {
+        if (isAxiosError(error)) {
+            if (error.response?.status === 400)
+                return Promise.reject({
+                    status: 400,
+                    reason: 'Bad Request',
+                    data: error.response?.data
+                });
+        }
+        return Promise.reject({
+            status: 500,
+            reason: 'Internal Server Error'
+        });
+    }
+}
+
+const endPasskeyAuthentication = async (data: PasskeyAuthCompleteData) => {
+    try {
+        const response: AxiosResponse<AuthTokens> = await publicInstance.post(
+            '/auth/login/complete-passkey/',
             data
         )
         if (response.status === 206) {
@@ -256,12 +262,19 @@ const endPasskeyAuthentication = async (data: any) => {
                     data: error.response?.data
                 });
         }
+        return Promise.reject({
+            status: 500,
+            reason: 'Internal Server Error'
+        });
     }
 }
 
-const googleSocialLogin = async (code: string, redirectUri: string) => {
+const googleSocialLogin = async (data: SocialLoginData) => {
     try {
-        const response = await publicInstance.post('/auth/social-login/google/', {code, redirectUri});
+        const response: AxiosResponse<AuthTokens> = await publicInstance.post(
+            '/auth/login/google/',
+            data
+        );
 
         if (response.status === 206) {
             return Promise.reject({
@@ -272,7 +285,7 @@ const googleSocialLogin = async (code: string, redirectUri: string) => {
         }
 
         storeCreds(response.data.access, response.data.refresh);
-        return response;
+        return response.data;
     } catch (error) {
         if (isAxiosError(error) && error.response?.status === 400) {
             return Promise.reject({
@@ -289,11 +302,11 @@ const googleSocialLogin = async (code: string, redirectUri: string) => {
     }
 };
 
-const microsoftSocialLogin = async (code: string, redirectUri: string) => {
+const microsoftSocialLogin = async (data: SocialLoginData) => {
     try {
-        const response = await publicInstance.post(
-            '/auth/social-login/microsoft/',
-            {code, redirectUri}
+        const response: AxiosResponse<AuthTokens> = await publicInstance.post(
+            '/auth/login/microsoft/',
+            data
         )
         if (response.status === 206) {
             return Promise.reject({
@@ -320,11 +333,11 @@ const microsoftSocialLogin = async (code: string, redirectUri: string) => {
     }
 }
 
-const facebookSocialLogin = async (code: string, redirectUri: string) => {
+const facebookSocialLogin = async (data: SocialLoginData) => {
     try {
-        const response = await publicInstance.post(
-            '/auth/social-login/facebook/',
-            {code, redirectUri}
+        const response: AxiosResponse<AuthTokens> = await publicInstance.post(
+            '/auth/login/facebook/',
+            data
         )
         if (response.status === 206) {
             return Promise.reject({
@@ -351,11 +364,11 @@ const facebookSocialLogin = async (code: string, redirectUri: string) => {
     }
 }
 
-const sendResetPasswordEmail = async (email: string) => {
+const sendResetPasswordEmail = async (data: ResetPasswordEmailData) => {
     try {
         const response = await publicInstance.post(
             '/auth/reset-password/send-email/',
-            {email}
+            data
         )
         return response.data
     } catch (error) {
@@ -455,11 +468,81 @@ const recoverAccount = async (code: string) => {
     }
 }
 
+const registerWithPassword = async (data: RegisterPasswordData) => {
+    try {
+        const response: AxiosResponse<AuthTokens> = await publicInstance.post(
+            '/auth/register/password/',
+            data
+        )
+        return response.data
+    } catch (error) {
+        if (isAxiosError(error)) {
+            if (error.response?.status === 400) {
+                return Promise.reject({
+                    status: 400,
+                    reason: 'Bad Request',
+                    data: error.response?.data
+                })
+            }
+        }
+        return Promise.reject({
+            status: 500,
+            reason: 'Internal Server Error'
+        })
+    }
+}
+
+const registerWithPasskey = async (data: PasskeyRegBeginData) => {
+    try {
+        const response: AxiosResponse<PasskeyRegBeginResponse> = await publicInstance.post(
+            '/auth/register/begin-passkey/',
+            data
+        )
+        return response.data
+    } catch (error) {
+        if (isAxiosError(error)) {
+            if (error.response?.status === 400) {
+                return Promise.reject({
+                    status: 400,
+                    reason: 'Bad Request',
+                    data: error.response?.data
+                })
+            }
+        }
+        return Promise.reject({
+            status: 500,
+            reason: 'Internal Server Error'
+        })
+    }
+}
+
+const completeRegisterWithPasskey = async (data: PasskeyRegCompleteData) => {
+    try {
+        const response: AxiosResponse<AuthTokens> = await publicInstance.post(
+            '/auth/register/complete-passkey/',
+            data
+        )
+        return response.data
+    } catch (error) {
+        if (isAxiosError(error)) {
+            if (error.response?.status === 400) {
+                return Promise.reject({
+                    status: 400,
+                    reason: 'Bad Request',
+                    data: error.response?.data
+                })
+            }
+        }
+        return Promise.reject({
+            status: 500,
+            reason: 'Internal Server Error'
+        })
+    }
+}
+
 export {
     getEmailAuthMethods,
     authWithPassword,
-    beginPasskeyRegistration,
-    endPasskeyRegistration,
     beginPasskeyAuthentication,
     endPasskeyAuthentication,
     googleSocialLogin,
@@ -472,5 +555,8 @@ export {
     sendResetPasswordEmail,
     verifyResetPasswordChallenge,
     setResetPassword,
-    recoverAccount
+    recoverAccount,
+    registerWithPassword,
+    registerWithPasskey,
+    completeRegisterWithPasskey
 }
