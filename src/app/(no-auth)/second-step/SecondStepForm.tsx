@@ -1,8 +1,8 @@
 'use client'
 import {getSecondStepMethods} from "@/lib/api/auths";
 import {useEffect, useMemo, useState} from "react";
-import {AuthenticationAppVerification} from "@/app/(auth)/second-step/AuthenticationAppVerification";
-import {EmailVerification} from "@/app/(auth)/second-step/EmailVerification";
+import {AuthenticationAppVerification} from "@/app/(no-auth)/second-step/AuthenticationAppVerification";
+import {EmailVerification} from "@/app/(no-auth)/second-step/EmailVerification";
 import {useRouter} from "next/navigation";
 import Link from "next/link";
 
@@ -67,7 +67,7 @@ export const SecondStepForm = () => {
             <p className={'font-sans text-xs mt-3 w-full text-center font-semibold'}>
                 Trouble with {selectedMethod === 'otp' ? 'email' : 'authenticator'}? {' '}
                 <Link
-                    href={'/(no-login)/recover-account/'}
+                    href={'/(no-auth)/recover-account/'}
                     className={'cursor-pointer text-blue-700 underline'}
                 >
                     Recover your account

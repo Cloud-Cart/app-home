@@ -1,10 +1,10 @@
 'use client';
-import {EmailForm} from "@/app/(no-login)/auth/emailForm";
-import {LoginFunctions} from "@/app/(no-login)/auth/loginFunctions";
+import {EmailForm} from "@/app/(no-auth)/auth/emailForm";
+import {LoginFunctions} from "@/app/(no-auth)/auth/loginFunctions";
 import {useRouter, useSearchParams} from "next/navigation";
 import {useCallback, useEffect, useMemo, useState} from "react";
-import {LoginForm} from "@/app/(no-login)/auth/loginForm";
-import {RegisterForm} from "@/app/(no-login)/auth/registerForm";
+import {LoginForm} from "@/app/(no-auth)/auth/loginForm";
+import {RegisterForm} from "@/app/(no-auth)/auth/registerForm";
 
 
 export default function Page() {

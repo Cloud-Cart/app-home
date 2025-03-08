@@ -10,6 +10,7 @@ import {
     PasskeyRegCompleteData,
     PasswordAuthData,
     RegisterPasswordData,
+    ResetPasswordEmailData,
     SocialLoginData
 } from "@/types";
 
@@ -363,11 +364,11 @@ const facebookSocialLogin = async (data: SocialLoginData) => {
     }
 }
 
-const sendResetPasswordEmail = async (email: string) => {
+const sendResetPasswordEmail = async (data: ResetPasswordEmailData) => {
     try {
         const response = await publicInstance.post(
             '/auth/reset-password/send-email/',
-            {email}
+            data
         )
         return response.data
     } catch (error) {

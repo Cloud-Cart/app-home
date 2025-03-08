@@ -1,4 +1,4 @@
-import {ResetPasswordForm} from "@/app/(no-login)/reset-password/ResetPasswordForm";
+import {ResetPasswordForm} from "@/app/(no-auth)/reset-password/ResetPasswordForm";
 
 
 export default function Page() {

@@ -1,8 +1,7 @@
-import {SecondStepForm} from "@/app/(auth)/second-step/SecondStepForm";
+import {SecondStepForm} from "@/app/(no-auth)/second-step/SecondStepForm";
 
-type Props = {};
 
-export default function Page(props: Props) {
+export default function Page() {
     return <>
         <div className={'container w-fit h-fit mb-4'}>
             <h3 className={'text-2xl font-bold'}>2-Step Verification</h3>

@@ -9,6 +9,7 @@ import {PasswordAuthData} from "@/types/PasswordAuthData";
 import {RegisterData} from "@/types/RegisterData";
 import {RegisterPasswordData} from "@/types/RegisterPasswordData";
 import {SocialLoginData} from "@/types/SocialLoginData";
+import {ResetPasswordEmailData} from "@/types/ResetPasswordEmailData";
 
 export type {
     AuthTokens,
@@ -22,4 +23,5 @@ export type {
     RegisterData,
     RegisterPasswordData,
     SocialLoginData,
+    ResetPasswordEmailData,
 }
